@@ -3,7 +3,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store"
-<<<<<<< HEAD
 import { ShoppingBag, Trash2, ArrowRight } from "lucide-react"
 
 type CartDrawerProps = {
@@ -15,7 +14,10 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
   const items = useCartStore((state) => state.items)
   const removeItem = useCartStore((state) => state.removeItem)
 
-  const total = items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0)
+  const total = items.reduce(
+    (sum, item) => sum + Number(item.price) * item.quantity,
+    0
+  )
 
   const handleCheckout = async () => {
     try {
@@ -40,6 +42,7 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="flex w-full max-w-md flex-col border-l bg-background p-0">
+
         <SheetHeader className="border-b px-6 py-5">
           <SheetTitle className="text-xl font-semibold tracking-tight">
             Your Cart
@@ -114,10 +117,12 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">${total.toFixed(2)}</span>
             </div>
+
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Shipping</span>
               <span className="font-medium">Calculated at checkout</span>
             </div>
+
             <div className="flex items-center justify-between border-t pt-3 text-base font-semibold">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
@@ -137,77 +142,8 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
             Secure checkout powered by Stripe
           </p>
         </div>
-      </SheetContent>
-=======
-
-export default function CartDrawer({ open, setOpen }: any) {
-
-  const items = useCartStore((state) => state.items)
-  const removeItem = useCartStore((state) => state.removeItem)
-
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  )
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-
-      <SheetContent className="w-[400px]">
-
-        <SheetHeader>
-          <SheetTitle>Your Cart</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-6 space-y-4">
-
-          {items.length === 0 && (
-            <p className="text-muted-foreground">
-              Your cart is empty
-            </p>
-          )}
-
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between"
-            >
-              <div>
-                <p className="font-medium">
-                  {item.name}
-                </p>
-
-                <p className="text-sm text-muted-foreground">
-                  ${item.price}
-                </p>
-              </div>
-
-              <Button
-                variant="outline"
-                onClick={() => removeItem(item.id)}
-              >
-                Remove
-              </Button>
-            </div>
-          ))}
-
-        </div>
-
-        <div className="mt-10 border-t pt-4">
-
-          <p className="font-semibold">
-            Total: ${total}
-          </p>
-
-          <Button className="w-full mt-4">
-            Checkout
-          </Button>
-
-        </div>
 
       </SheetContent>
-
->>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
     </Sheet>
   )
 }

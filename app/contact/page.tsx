@@ -87,7 +87,7 @@ export default function ContactPage() {
             <div className="rounded-2xl border p-6 shadow-sm">
               <h3 className="font-semibold text-lg">📍 Address</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                393 S Barnes Dr Apt 276 <br />
+                393 S Barnes Dr <br />
                 Garland, TX 75042
               </p>
             </div>
