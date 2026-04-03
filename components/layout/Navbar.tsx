@@ -1,19 +1,31 @@
 "use client"
 
 import { useState } from "react"
+<<<<<<< HEAD
 import Link from "next/link"
+=======
+>>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
 import { Button } from "@/components/ui/button"
 import CartDrawer from "@/components/cart/CartDrawer"
 import { useCartStore } from "@/lib/store"
 import ThemeToggle from "@/components/layout/ThemeToggle"
+<<<<<<< HEAD
 import { ShoppingCart } from "lucide-react"
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+=======
+
+export default function Navbar() {
+
+  const [open, setOpen] = useState(false)
+
+>>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
   const items = useCartStore((state) => state.items)
 
   return (
     <>
+<<<<<<< HEAD
       <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           
@@ -70,6 +82,28 @@ export default function Navbar() {
       </header>
 
       <CartDrawer open={open} setOpen={setOpen} />
+=======
+<header className="flex items-center justify-between px-6 py-4 border-b">
+
+  <h2 className="text-xl font-bold">
+    Future Commerce
+  </h2>
+
+  <div className="flex gap-3">
+
+    <ThemeToggle />
+
+    <Button onClick={() => setOpen(true)}>
+      Cart ({items.length})
+    </Button>
+
+  </div>
+
+</header>
+
+      <CartDrawer open={open} setOpen={setOpen} />
+
+>>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
     </>
   )
 }

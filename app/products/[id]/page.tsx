@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import Link from "next/link"
+=======
+>>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
 import { notFound } from "next/navigation"
 import { getProduct } from "@/lib/queries"
 import ProductGallery from "@/components/products/ProductGallery"
@@ -8,6 +11,7 @@ type Props = {
   params: Promise<{ id: string }>
 }
 
+<<<<<<< HEAD
 function formatPrice(price: number | string) {
   const value = Number(price)
   return Number.isFinite(value) ? value.toFixed(2) : String(price)
@@ -114,6 +118,45 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </section>
       </div>
+=======
+export default async function ProductPage({ params }: Props) {
+
+  const { id } = await params
+
+  const product = await getProduct(id)
+
+  if (!product) {
+    return notFound()
+  }
+
+  return (
+    <main className="container mx-auto px-6 py-16">
+
+      <div className="grid md:grid-cols-2 gap-10">
+
+        <ProductGallery images={product.images} />
+
+        <div>
+
+          <h1 className="text-4xl font-bold mb-4">
+            {product.name}
+          </h1>
+
+          <p className="text-2xl font-semibold mb-6">
+            ${product.price}
+          </p>
+
+          <p className="text-muted-foreground mb-8">
+            {product.description}
+          </p>
+
+          <AddToCartSticky product={product} />
+
+        </div>
+
+      </div>
+
+>>>>>>> 54f665595f0584e34d3735dcffc40828abe7a77f
     </main>
   )
 }
