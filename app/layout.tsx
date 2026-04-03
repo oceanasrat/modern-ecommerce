@@ -4,6 +4,18 @@ import Footer from "@/components/Footer"
 import { ThemeProvider } from "next-themes"
 import PageTransition from "../components/layout/PageTransition"
 import Script from "next/script"
+import { Inter } from "next/font/google"
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+})
+
+export const metadata = {
+  title: "Ocean Global Ventures",
+  description: "Premium products sourced globally",
+}
 
 export default function RootLayout({
   children,
@@ -12,15 +24,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col antialiased">
-
+      <body
+        className={`flex min-h-screen flex-col antialiased ${inter.variable}`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-
           {/* Navbar */}
           <Navbar />
 
@@ -33,7 +45,6 @@ export default function RootLayout({
 
           {/* Footer */}
           <Footer />
-
         </ThemeProvider>
 
         {/* Google Analytics */}
@@ -51,7 +62,6 @@ export default function RootLayout({
             });
           `}
         </Script>
-
       </body>
     </html>
   )

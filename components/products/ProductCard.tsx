@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/lib/store"
+import { ShoppingCart } from "lucide-react"
 
 type Product = {
   id: string | number
@@ -31,57 +32,55 @@ export default function ProductCard({ product }: { product: Product }) {
       className="group h-full"
     >
       <Card className="flex h-full flex-col overflow-hidden rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-xl">
-        
+
+        {/* SINGLE LINK WRAPPER */}
         <Link
           href={`/products/${product.id}`}
-          className="block overflow-hidden"
-          aria-label={`View ${product.name}`}
+          className="block"
         >
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-            
+
             <img
               src={product.image}
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              loading="lazy"
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
 
+            {/* Category */}
             {product.category && (
-              <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow-sm backdrop-blur">
+              <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
                 {product.category}
               </div>
             )}
           </div>
         </Link>
 
+        {/* CONTENT (NO LINK HERE) */}
         <CardContent className="flex flex-1 flex-col p-5">
-          
-          <div className="space-y-2">
-            <Link href={`/products/${product.id}`}>
-              <h3 className="line-clamp-2 text-lg font-semibold tracking-tight transition-colors group-hover:text-primary">
-                {product.name}
-              </h3>
-            </Link>
 
-            <p className="line-clamp-2 text-sm text-muted-foreground">
-              {product.description || "Premium product"}
+          <h3 className="text-base font-semibold tracking-tight">
+            {product.name}
+          </h3>
+
+          <p className="mt-1 text-sm text-muted-foreground">
+            {product.description || "Premium product"}
+          </p>
+
+          <div className="mt-5 flex items-center justify-between">
+
+            <p className="text-lg font-semibold">
+              ${displayPrice}
             </p>
-          </div>
 
-          <div className="mt-5 flex items-end justify-between gap-3">
-            
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Price
-              </p>
-              <p className="text-2xl font-bold">${displayPrice}</p>
-            </div>
-
+            {/* BUTTON (NOT INSIDE LINK) */}
             <Button
-              className="rounded-full px-5 shadow-sm transition-transform hover:scale-[1.02]"
-              onClick={() =>
+              size="sm"
+              className="rounded-full px-4"
+              onClick={(e) => {
+                e.preventDefault()
                 addItem({
                   id: String(product.id),
                   name: product.name,
@@ -89,12 +88,14 @@ export default function ProductCard({ product }: { product: Product }) {
                   image: product.image,
                   quantity: 1,
                 })
-              }
+              }}
             >
-              Add to Cart
+              <ShoppingCart className="h-4 w-4 mr-1" />
+              Add
             </Button>
 
           </div>
+
         </CardContent>
 
       </Card>
