@@ -14,6 +14,11 @@ type Product = {
   image: string
   category?: string
   description?: string
+
+  // -------------------------
+  // NEW (Retail OS fields)
+  // -------------------------
+  sku?: string
 }
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -33,7 +38,6 @@ export default function ProductCard({ product }: { product: Product }) {
     >
       <Card className="flex h-full flex-col overflow-hidden rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-xl">
 
-        {/* SINGLE LINK WRAPPER */}
         <Link
           href={`/products/${product.id}`}
           className="block"
@@ -46,10 +50,8 @@ export default function ProductCard({ product }: { product: Product }) {
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
 
-            {/* Overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
 
-            {/* Category */}
             {product.category && (
               <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
                 {product.category}
@@ -58,7 +60,6 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
 
-        {/* CONTENT (NO LINK HERE) */}
         <CardContent className="flex flex-1 flex-col p-5">
 
           <h3 className="text-base font-semibold tracking-tight">
@@ -75,18 +76,24 @@ export default function ProductCard({ product }: { product: Product }) {
               ${displayPrice}
             </p>
 
-            {/* BUTTON (NOT INSIDE LINK) */}
             <Button
               size="sm"
               className="rounded-full px-4"
               onClick={(e) => {
                 e.preventDefault()
+
                 addItem({
                   id: String(product.id),
                   name: product.name,
                   price: numericPrice,
                   image: product.image,
                   quantity: 1,
+
+                  // -------------------------
+                  // NEW (Retail OS fields)
+                  // -------------------------
+                  sku: product.sku || "",
+                  category: product.category || "general",
                 })
               }}
             >
