@@ -13,6 +13,7 @@ type CartDrawerProps = {
 export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
   const items = useCartStore((state) => state.items)
   const removeItem = useCartStore((state) => state.removeItem)
+  const updateQuantity = useCartStore((state) => state.updateQuantity)
 
   const total = items.reduce(
     (sum, item) => sum + Number(item.price) * item.quantity,
@@ -43,6 +44,7 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="flex w-full max-w-md flex-col border-l bg-background p-0">
 
+        {/* HEADER */}
         <SheetHeader className="border-b px-6 py-5">
           <SheetTitle className="text-xl font-semibold tracking-tight">
             Your Cart
@@ -52,6 +54,7 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
           </p>
         </SheetHeader>
 
+        {/* ITEMS */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center py-16 text-center">
@@ -68,8 +71,9 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex gap-4 rounded-2xl border bg-background p-4 shadow-sm"
+                  className="flex gap-4 rounded-2xl border bg-background p-4 shadow-sm hover:shadow-md transition"
                 >
+                  {/* IMAGE */}
                   <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
                     <img
                       src={item.image}
@@ -78,32 +82,60 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
                     />
                   </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium leading-6">
-                          {item.name}
-                        </p>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
+                  {/* INFO */}
+                  <div className="flex-1 space-y-3">
+
+                    <div className="flex items-start justify-between">
+                      <p className="font-medium leading-6 line-clamp-2">
+                        {item.name}
+                      </p>
 
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                        className="text-muted-foreground hover:text-red-500 transition"
                       >
                         <Trash2 className="h-4 w-4" />
-                        Remove
                       </button>
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">Price</p>
-                      <p className="text-base font-semibold">
-                        ${Number(item.price).toFixed(2)}
+                    {/* QUANTITY */}
+                    <div className="flex items-center gap-2">
+
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity - 1)
+                        }
+                        className="h-7 w-7 rounded-full border text-sm hover:bg-muted"
+                      >
+                        -
+                      </button>
+
+                      <span className="text-sm font-medium">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.id, item.quantity + 1)
+                        }
+                        className="h-7 w-7 rounded-full border text-sm hover:bg-muted"
+                      >
+                        +
+                      </button>
+
+                    </div>
+
+                    {/* PRICE */}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">
+                        ${Number(item.price).toFixed(2)} each
+                      </p>
+
+                      <p className="font-semibold">
+                        ${(Number(item.price) * item.quantity).toFixed(2)}
                       </p>
                     </div>
+
                   </div>
                 </div>
               ))}
@@ -111,19 +143,21 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
           )}
         </div>
 
+        {/* FOOTER */}
         <div className="border-t bg-background px-6 py-5">
+
           <div className="mb-4 space-y-2 rounded-2xl bg-muted/40 p-4">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">${total.toFixed(2)}</span>
+              <span>${total.toFixed(2)}</span>
             </div>
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Shipping</span>
-              <span className="font-medium">Calculated at checkout</span>
+              <span>Calculated at checkout</span>
             </div>
 
-            <div className="flex items-center justify-between border-t pt-3 text-base font-semibold">
+            <div className="flex justify-between border-t pt-3 text-base font-semibold">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
@@ -138,9 +172,11 @@ export default function CartDrawer({ open, setOpen }: CartDrawerProps) {
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
 
+          {/* TRUST */}
           <p className="mt-3 text-center text-xs text-muted-foreground">
-            Secure checkout powered by Stripe
+            🔒 Secure checkout • 30-day guarantee • Fast delivery
           </p>
+
         </div>
 
       </SheetContent>
