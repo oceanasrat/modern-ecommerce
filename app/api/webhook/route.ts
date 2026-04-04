@@ -25,26 +25,22 @@ export async function POST(req: Request) {
     return new NextResponse("Missing signature", { status: 400 })
   }
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    )
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
   } catch (err) {
     console.error("❌ Webhook signature error:", err)
     return new NextResponse("Webhook Error", { status: 400 })
   }
 
-  // 🔥 HANDLE PAYMENT SUCCESS
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session
 
     console.log("✅ Payment received:", session.id)
 
-    // ✅ Prevent duplicate orders
     const existingOrder = await sanityAdmin.fetch(
       `*[_type == "order" && stripeId == $id][0]`,
       { id: session.id }
@@ -55,7 +51,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true })
     }
 
-    // ✅ Safe parse metadata
     let items: any[] = []
     try {
       items = JSON.parse(session.metadata?.items || "[]")
@@ -64,14 +59,12 @@ export async function POST(req: Request) {
     }
 
     try {
-      // ✅ Save order
       await sanityAdmin.create({
         _type: "order",
         stripeId: session.id,
         customerEmail: session.customer_details?.email || "unknown",
         amount: session.amount_total ? session.amount_total / 100 : 0,
         status: "paid",
-
         products: items.map((item: any) => ({
           _key: item.id,
           productId: item.id,
@@ -82,12 +75,10 @@ export async function POST(req: Request) {
       })
 
       console.log("✅ Order saved:", session.id)
-
     } catch (error) {
       console.error("❌ Order save failed:", error)
     }
 
-    // ✅ Update stock (safe base URL)
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -107,7 +98,6 @@ export async function POST(req: Request) {
         })
 
         console.log("✅ Stock updated:", item.id)
-
       } catch (err) {
         console.error("❌ Stock update failed:", item.id, err)
       }
