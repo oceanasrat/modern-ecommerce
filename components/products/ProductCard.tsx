@@ -93,7 +93,9 @@ export default function ProductCard({ product }: { product: Product }) {
                   // NEW (Retail OS fields)
                   // -------------------------
                   sku: product.sku || "",
-                  category: product.category || "general",
+                  category: (["fresh", "alcohol", "general"].includes(product.category as string)
+  ? product.category
+  : "general") as "fresh" | "alcohol" | "general",
                 })
               }}
             >
