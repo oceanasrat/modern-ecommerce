@@ -7,6 +7,12 @@ interface CartItem {
   price: number
   image: string
   quantity: number
+
+  // -------------------------
+  // NEW FIELDS (Retail OS)
+  // -------------------------
+  sku?: string
+  category?: "fresh" | "alcohol" | "general"
 }
 
 interface CartState {
@@ -22,6 +28,11 @@ interface CartState {
 
   getTotal: () => number
   getItemCount: () => number
+
+  // -------------------------
+  // NEW HELPERS
+  // -------------------------
+  hasAlcohol: () => boolean
 }
 
 export const useCartStore = create<CartState>()(
@@ -54,6 +65,10 @@ export const useCartStore = create<CartState>()(
                 ...item,
                 quantity: item.quantity || 1,
                 price: Number(item.price) || 0,
+
+                // Ensure safe defaults
+                sku: item.sku || "",
+                category: item.category || "general",
               },
             ],
           }
@@ -90,18 +105,17 @@ export const useCartStore = create<CartState>()(
             .filter((i) => i.quantity > 0),
         })),
 
-      // ✅ UPDATE QTY (used in cart UI)
+      // ✅ UPDATE QTY
       updateQuantity: (id, quantity) =>
         set((state) => ({
-          items: state.items
-            .map((i) =>
-              i.id === id
-                ? {
-                    ...i,
-                    quantity: Math.max(1, Number(quantity) || 1),
-                  }
-                : i
-            ),
+          items: state.items.map((i) =>
+            i.id === id
+              ? {
+                  ...i,
+                  quantity: Math.max(1, Number(quantity) || 1),
+                }
+              : i
+          ),
         })),
 
       // ✅ TOTAL PRICE
@@ -117,6 +131,14 @@ export const useCartStore = create<CartState>()(
         get().items.reduce(
           (count, item) => count + item.quantity,
           0
+        ),
+
+      // -------------------------
+      // NEW: ALCOHOL DETECTION
+      // -------------------------
+      hasAlcohol: () =>
+        get().items.some(
+          (item) => item.category === "alcohol"
         ),
     }),
     {
