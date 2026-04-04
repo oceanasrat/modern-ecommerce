@@ -11,13 +11,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(req: Request) {
   try {
-    const { items } = await req.json()
+    const { items, deliveryTime } = await req.json()
 
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "http://localhost:3000"
 
+    // -------------------------
+    // DETECT ALCOHOL IN CART
+    // -------------------------
+    const containsAlcohol = items.some(
+      (item: any) => item.category === "alcohol"
+    )
+
+    // -------------------------
+    // CREATE STRIPE SESSION
+    // -------------------------
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -32,6 +42,14 @@ export async function POST(req: Request) {
         },
         quantity: item.quantity,
       })),
+
+      // -------------------------
+      // METADATA (IMPORTANT)
+      // -------------------------
+      metadata: {
+        delivery_time: deliveryTime || "not_selected",
+        contains_alcohol: containsAlcohol ? "true" : "false",
+      },
 
       success_url: `${baseUrl}/success`,
       cancel_url: `${baseUrl}/cancel`,
