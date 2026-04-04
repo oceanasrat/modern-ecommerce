@@ -1,31 +1,50 @@
 import Stripe from "stripe"
 import { NextResponse } from "next/server"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error("Missing STRIPE_SECRET_KEY")
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-06-20",
 })
 
 export async function POST(req: Request) {
-  const { items } = await req.json()
+  try {
+    const { items } = await req.json()
 
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    mode: "payment",
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      "http://localhost:3000"
 
-    line_items: items.map((item: any) => ({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: item.name,
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+
+      line_items: items.map((item: any) => ({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.name,
+          },
+          unit_amount: Math.round(Number(item.price) * 100),
         },
-        unit_amount: item.price * 100,
-      },
-      quantity: item.quantity,
-    })),
+        quantity: item.quantity,
+      })),
 
-    success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
-  })
+      success_url: `${baseUrl}/success`,
+      cancel_url: `${baseUrl}/cancel`,
+    })
 
-  return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url })
+
+  } catch (error) {
+    console.error("❌ Stripe Checkout Error:", error)
+
+    return NextResponse.json(
+      { error: "Checkout failed" },
+      { status: 500 }
+    )
+  }
 }
