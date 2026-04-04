@@ -4,10 +4,21 @@ import { client } from "@/lib/sanity"
 export async function getProducts() {
   return client.fetch(`*[_type == "product"]{
     _id,
+    "id": _id,
     name,
     price,
     description,
-    "image": images[0].asset->url
+
+    // -------------------------
+    // IMAGE (SAFE FORMAT)
+    // -------------------------
+    "image": images[0].asset->url,
+
+    // -------------------------
+    // NEW (Retail OS fields)
+    // -------------------------
+    sku,
+    category
   }`)
 }
 
@@ -16,10 +27,21 @@ export async function getProduct(id: string) {
   return client.fetch(
     `*[_type == "product" && _id == $id][0]{
       _id,
+      "id": _id,
       name,
       price,
       description,
-      "images": images[].asset->url
+
+      // -------------------------
+      // IMAGES ARRAY (SAFE)
+      // -------------------------
+      "images": images[].asset->url,
+
+      // -------------------------
+      // NEW (Retail OS fields)
+      // -------------------------
+      sku,
+      category
     }`,
     { id }
   )
