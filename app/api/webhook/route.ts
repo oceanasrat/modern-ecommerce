@@ -2,6 +2,7 @@ import Stripe from "stripe"
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 import { sanityAdmin } from "@/lib/sanityAdmin"
+import { revalidatePath } from "next/cache" // ✅ NEW
 
 // ✅ Ensure env variables exist
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -27,7 +28,6 @@ export async function POST(req: Request) {
     return new NextResponse("Missing signature", { status: 400 })
   }
 
-  // ✅ FORCE string (fix TypeScript error)
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
   let event: Stripe.Event
@@ -49,7 +49,6 @@ export async function POST(req: Request) {
 
     console.log("✅ Payment received:", session.id)
 
-    // ✅ Prevent duplicate orders
     const existingOrder = await sanityAdmin.fetch(
       `*[_type == "order" && stripeId == $id][0]`,
       { id: session.id }
@@ -60,7 +59,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ received: true })
     }
 
-    // ✅ Parse metadata safely
     let items: any[] = []
     try {
       items = JSON.parse(session.metadata?.items || "[]")
@@ -68,7 +66,6 @@ export async function POST(req: Request) {
       console.error("❌ Failed to parse metadata:", err)
     }
 
-    // ✅ Save order
     try {
       await sanityAdmin.create({
         _type: "order",
@@ -92,7 +89,6 @@ export async function POST(req: Request) {
       console.error("❌ Order save failed:", error)
     }
 
-    // ✅ Update stock
     const baseUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -115,6 +111,17 @@ export async function POST(req: Request) {
       } catch (err) {
         console.error("❌ Stock update failed:", item.id, err)
       }
+    }
+
+    // 🔥 NEW: AUTO REVALIDATE PAGES
+    try {
+      revalidatePath("/") // homepage
+      revalidatePath("/products") // product list
+      revalidatePath("/products/[id]", "page") // dynamic pages
+
+      console.log("🔄 Site revalidated")
+    } catch (err) {
+      console.error("❌ Revalidation failed:", err)
     }
   }
 
