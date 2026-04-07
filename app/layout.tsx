@@ -14,7 +14,12 @@ const inter = Inter({
 
 export const metadata = {
   title: "Ocean Global Ventures",
-  description: "Premium products sourced globally",
+  description:
+    "Ocean Global Ventures LLC offers premium products with fast shipping and secure checkout.",
+
+  verification: {
+    google: "8Rg5eln8dFtcfxiMpDr7Iy0Q_h_LDPPbmOd2yARQAks",
+  },
 }
 
 export default function RootLayout({
