@@ -7,15 +7,16 @@ export default async function HomePage() {
   const products = await getProducts()
 
   // ✅ NEW: Fetch promo banner
-  const banner = await client.fetch(
-    `*[_type == "promoBanner"][0]{
-      title,
-      subtitle,
-      "image": image.asset->url
-    }`,
-    {},
-    { cache: "no-store" }
-  )
+  const banners = await client.fetch(
+  `*[_type == "promoBanner"]{
+    _id,
+    title,
+    subtitle,
+    "image": image.asset->url
+  }`,
+  {},
+  { cache: "no-store" }
+)
 
   return (
     <main className="container mx-auto px-6 py-16">
