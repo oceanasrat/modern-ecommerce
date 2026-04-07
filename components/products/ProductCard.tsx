@@ -97,7 +97,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="mt-2 flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="font-medium">{rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({reviews} reviews)</span>
+            <span className="text-muted-foreground">({reviews}+ verified buyers)</span>
           </div>
 
           {/* ⏳ Stock urgency */}
