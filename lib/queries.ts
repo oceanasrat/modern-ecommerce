@@ -8,10 +8,16 @@ export async function getProducts() {
       name,
       price,
       description,
-      "image": images[0].asset->url
+      "image": images[0].asset->url,
+
+      // 🔥 NEW FIELDS
+      rating,
+      reviews,
+      isBestSeller,
+      stock
     }`,
     {},
-    { cache: "no-store" } // ✅ NEW (disables caching)
+    { cache: "no-store" }
   )
 }
 
@@ -23,9 +29,15 @@ export async function getProduct(id: string) {
       name,
       price,
       description,
-      "images": images[].asset->url
+      "images": images[].asset->url,
+
+      // 🔥 NEW FIELDS
+      rating,
+      reviews,
+      isBestSeller,
+      stock
     }`,
     { id },
-    { cache: "no-store" } // ✅ NEW (disables caching)
+    { cache: "no-store" }
   )
 }
