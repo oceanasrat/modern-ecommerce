@@ -22,7 +22,8 @@ export default async function HomePage() {
   const pet = products.filter((p: any) => p.category === "pet")
   const beauty = products.filter((p: any) => p.category === "beauty")
   const kitchen = products.filter((p: any) => p.category === "kitchen")
-
+  const health = products.filter((p: any) => p.category === "health")
+ 
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
 
@@ -103,6 +104,17 @@ export default async function HomePage() {
         </section>
       )}
 
+      {health.length > 0 && (
+  <section>
+    <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
+    <div className="grid md:grid-cols-3 gap-6">
+      {health.map((product: any) => (
+        <ProductCard key={product._id} product={product} />
+      ))}
+    </div>
+  </section>
+)}
+      
       {/* ALL PRODUCTS (KEEP ORIGINAL) */}
       <section id="products">
         <h2 className="text-2xl font-bold mb-6">All Products</h2>
