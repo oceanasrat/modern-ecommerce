@@ -29,7 +29,23 @@ export default {
       of: [{ type: "image" }]
     },
 
-    // ⭐ Rating (0–5)
+    // 🆕 CATEGORY (IMPORTANT)
+    {
+      name: "category",
+      title: "Category",
+      type: "string",
+      options: {
+        list: [
+          { title: "Pet", value: "pet" },
+          { title: "Beauty", value: "beauty" },
+          { title: "Kitchen", value: "kitchen" },
+          { title: "Electronics", value: "electronics" },
+        ],
+        layout: "dropdown"
+      }
+    },
+
+    // ⭐ Rating
     {
       name: "rating",
       title: "Rating",
@@ -38,7 +54,7 @@ export default {
       initialValue: 4.5
     },
 
-    // 💬 Number of reviews
+    // 💬 Reviews
     {
       name: "reviews",
       title: "Reviews Count",
@@ -46,7 +62,7 @@ export default {
       initialValue: 120
     },
 
-    // 🔥 Best Seller Badge
+    // 🔥 Best Seller
     {
       name: "isBestSeller",
       title: "Best Seller",
@@ -54,7 +70,7 @@ export default {
       initialValue: false
     },
 
-    // ⏳ Stock (inventory)
+    // ⏳ Stock
     {
       name: "stock",
       title: "Stock Quantity",
