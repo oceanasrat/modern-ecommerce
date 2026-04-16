@@ -40,6 +40,7 @@ export default {
           { title: "Beauty", value: "beauty" },
           { title: "Kitchen", value: "kitchen" },
           { title: "Electronics", value: "electronics" },
+          { title: "Health", value: "health" },
         ],
         layout: "dropdown"
       }
