@@ -1,3 +1,17 @@
+import "./globals.css"
+import Navbar from "@/components/layout/Navbar"
+import Footer from "@/components/Footer"
+import { ThemeProvider } from "next-themes"
+import PageTransition from "@/components/layout/PageTransition"
+import Script from "next/script"
+import { Inter } from "next/font/google"
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+})
+
 export const metadata = {
   metadataBase: new URL("https://oceanglobalventuresllc.com"),
 
@@ -7,41 +21,47 @@ export const metadata = {
   },
 
   description:
-    "Shop premium products across Health, Beauty, Kitchen, and Pet categories. Fast shipping and secure checkout at Ocean Global Ventures.",
-
-  keywords: [
-    "ecommerce store",
-    "online shopping",
-    "health products",
-    "beauty products",
-    "kitchen essentials",
-    "pet supplies",
-  ],
-
-  authors: [{ name: "Ocean Global Ventures LLC" }],
-
-  openGraph: {
-    title: "Ocean Global Ventures",
-    description:
-      "Premium products with fast shipping and secure checkout.",
-    url: "https://oceanglobalventuresllc.com",
-    siteName: "Ocean Global Ventures",
-    images: [
-      {
-        url: "/og-image.png", // 👉 add later
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
+    "Shop premium products across Health, Beauty, Kitchen, and Pet categories with fast shipping and secure checkout.",
 
   icons: {
     icon: "/favicon.ico",
   },
+}
 
-  verification: {
-    google: "8Rg5eln8dFtcfxiMpDr7Iy0Q_h_LDPPbmOd2yARQAks",
-  },
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={`flex min-h-screen flex-col ${inter.variable}`}>
+        <ThemeProvider attribute="class" defaultTheme="system">
+
+          <Navbar />
+
+          <main className="flex-1">
+            <PageTransition>{children}</PageTransition>
+          </main>
+
+          <Footer />
+
+        </ThemeProvider>
+
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+          `}
+        </Script>
+      </body>
+    </html>
+  )
 }
