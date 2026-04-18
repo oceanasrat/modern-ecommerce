@@ -23,7 +23,7 @@ export default async function HomePage() {
   const beauty = products.filter((p: any) => p.category === "beauty")
   const kitchen = products.filter((p: any) => p.category === "kitchen")
   const health = products.filter((p: any) => p.category === "health")
- 
+
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
 
@@ -39,7 +39,10 @@ export default async function HomePage() {
             <p className="text-lg md:text-xl max-w-xl mb-6">
               {banners[0].subtitle}
             </p>
-            <a href="#products" className="bg-white text-black px-6 py-3 rounded-lg font-semibold">
+            <a
+              href="#products"
+              className="bg-white text-black px-6 py-3 rounded-lg font-semibold"
+            >
               Shop Now
             </a>
           </div>
@@ -51,6 +54,36 @@ export default async function HomePage() {
         <h1 className="text-4xl md:text-6xl font-bold text-center">
           Ocean Global Ventures
         </h1>
+      </section>
+
+      {/* 🔥 CATEGORY TILES (VERY IMPORTANT UX) */}
+      <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+        <a href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow transition">
+          🐶
+          <p className="mt-2 font-semibold">Pet</p>
+        </a>
+
+        <a href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💄
+          <p className="mt-2 font-semibold">Beauty</p>
+        </a>
+
+        <a href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow transition">
+          🍳
+          <p className="mt-2 font-semibold">Kitchen</p>
+        </a>
+
+        <a href="/category/health" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💊
+          <p className="mt-2 font-semibold">Health</p>
+        </a>
+
+        <a href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💻
+          <p className="mt-2 font-semibold">Electronics</p>
+        </a>
+
       </section>
 
       {/* SEARCH */}
@@ -104,18 +137,19 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* 💊 HEALTH */}
       {health.length > 0 && (
-  <section>
-    <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
-    <div className="grid md:grid-cols-3 gap-6">
-      {health.map((product: any) => (
-        <ProductCard key={product._id} product={product} />
-      ))}
-    </div>
-  </section>
-)}
-      
-      {/* ALL PRODUCTS (KEEP ORIGINAL) */}
+        <section>
+          <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {health.map((product: any) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ALL PRODUCTS */}
       <section id="products">
         <h2 className="text-2xl font-bold mb-6">All Products</h2>
         <div className="grid md:grid-cols-3 gap-6">
