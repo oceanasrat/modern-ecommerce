@@ -2,14 +2,13 @@ import { client } from "@/lib/sanity"
 
 // ✅ GET ALL PRODUCTS
 export async function getProducts() {
-  const products = await client.fetch(
+  return client.fetch(
     `*[_type == "product"]{
       _id,
       name,
       price,
       description,
       "image": images[0].asset->url,
-      "images": images[].asset->url,
       category,
       rating,
       reviews,
@@ -19,16 +18,9 @@ export async function getProducts() {
     {},
     { cache: "no-store" }
   )
-
-  return products.map((p: any) => ({
-    ...p,
-    images: Array.isArray(p.images)
-      ? p.images.filter(Boolean)
-      : [],
-  }))
 }
 
-// ✅ GET SINGLE PRODUCT
+// ✅ GET SINGLE PRODUCT (MULTIPLE IMAGES SAFE)
 export async function getProduct(id: string) {
   const product = await client.fetch(
     `*[_type == "product" && _id == $id][0]{
@@ -52,7 +44,9 @@ export async function getProduct(id: string) {
   return {
     ...product,
     images: Array.isArray(product.images)
-      ? product.images.filter(Boolean)
+      ? product.images.filter(
+          (img: string) => typeof img === "string" && img.length > 0
+        )
       : [],
   }
 }
