@@ -20,7 +20,6 @@ export async function getProducts() {
     { cache: "no-store" }
   )
 
-  // ✅ SAFETY FIX
   return products.map((p: any) => ({
     ...p,
     images: Array.isArray(p.images)
