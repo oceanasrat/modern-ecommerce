@@ -2,6 +2,7 @@ import { getProducts } from "@/lib/queries"
 import ProductCard from "@/components/products/ProductCard"
 import SearchBar from "@/components/products/SearchBar"
 import { client } from "@/lib/sanity"
+import Link from "next/link"
 
 export default async function HomePage() {
   const products = await getProducts()
@@ -59,32 +60,32 @@ export default async function HomePage() {
       {/* 🔥 CATEGORY TILES (VERY IMPORTANT UX) */}
       <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
 
-        <a href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow transition">
-          🐶
-          <p className="mt-2 font-semibold">Pet</p>
-        </a>
+  <Link href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow transition">
+    🐶
+    <p className="mt-2 font-semibold">Pet</p>
+  </Link>
 
-        <a href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow transition">
-          💄
-          <p className="mt-2 font-semibold">Beauty</p>
-        </a>
+  <Link href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow transition">
+    💄
+    <p className="mt-2 font-semibold">Beauty</p>
+  </Link>
 
-        <a href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow transition">
-          🍳
-          <p className="mt-2 font-semibold">Kitchen</p>
-        </a>
+  <Link href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow transition">
+    🍳
+    <p className="mt-2 font-semibold">Kitchen</p>
+  </Link>
 
-        <a href="/category/health" className="rounded-xl border p-6 text-center hover:shadow transition">
-          💊
-          <p className="mt-2 font-semibold">Health</p>
-        </a>
+  <Link href="/category/health" className="rounded-xl border p-6 text-center hover:shadow transition">
+    💊
+    <p className="mt-2 font-semibold">Health</p>
+  </Link>
 
-        <a href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow transition">
-          💻
-          <p className="mt-2 font-semibold">Electronics</p>
-        </a>
+  <Link href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow transition">
+    💻
+    <p className="mt-2 font-semibold">Electronics</p>
+  </Link>
 
-      </section>
+</section>
 
       {/* SEARCH */}
       <SearchBar products={products} />
