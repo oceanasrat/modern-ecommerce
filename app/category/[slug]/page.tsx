@@ -1,6 +1,5 @@
 import { getProducts } from "@/lib/queries"
 import ProductCard from "@/components/products/ProductCard"
-import { notFound } from "next/navigation"
 
 export default async function CategoryPage({
   params,
@@ -9,13 +8,11 @@ export default async function CategoryPage({
 }) {
   const products = await getProducts()
 
+  // ✅ SAFE FILTER (fixes your issue)
   const filtered = products.filter(
-    (p: any) => p.category === params.slug
+    (p: any) =>
+      p.category?.trim().toLowerCase() === params.slug.toLowerCase()
   )
-
-  if (filtered.length === 0) {
-    return notFound()
-  }
 
   return (
     <main className="container mx-auto px-6 py-16">
@@ -24,11 +21,22 @@ export default async function CategoryPage({
         {params.slug} Products
       </h1>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {filtered.map((product: any) => (
-          <ProductCard key={product._id} product={product} />
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <div className="text-center py-20">
+          <h2 className="text-2xl font-bold">
+            No products found in this category
+          </h2>
+          <p className="text-muted-foreground mt-2">
+            Try another category
+          </p>
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-3 gap-6">
+          {filtered.map((product: any) => (
+            <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      )}
 
     </main>
   )
