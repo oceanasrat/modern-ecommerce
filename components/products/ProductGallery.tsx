@@ -3,20 +3,24 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 
-export default function ProductGallery({ images }: { images?: string[] }) {
-  // ✅ SAFE FALLBACK
+type Props = {
+  images?: string[]
+}
+
+export default function ProductGallery({ images }: Props) {
+  // ✅ Safe images
   const safeImages = Array.isArray(images) ? images : []
 
   const [selected, setSelected] = useState<string | null>(null)
 
-  // ✅ SET DEFAULT IMAGE SAFELY
+  // ✅ Set default image
   useEffect(() => {
     if (safeImages.length > 0) {
       setSelected(safeImages[0])
     }
   }, [safeImages])
 
-  // ❗ If no images, show placeholder instead of crashing
+  // ✅ Empty state
   if (safeImages.length === 0) {
     return (
       <div className="flex items-center justify-center h-[400px] bg-muted rounded-xl">
@@ -26,29 +30,43 @@ export default function ProductGallery({ images }: { images?: string[] }) {
   }
 
   return (
-    <div>
-      <div className="overflow-hidden rounded-xl">
+    <div className="w-full">
+      {/* ✅ MAIN IMAGE */}
+      <div className="overflow-hidden rounded-2xl border bg-white">
         {selected && (
           <motion.img
+            key={selected}
             src={selected}
-            className="w-full cursor-zoom-in"
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.4 }}
+            alt="Product image"
+            loading="eager"
+            className="w-full h-[400px] md:h-[500px] object-cover cursor-zoom-in"
+            whileHover={{ scale: 1.08 }}
+            transition={{ duration: 0.3 }}
           />
         )}
       </div>
 
-      <div className="flex gap-3 mt-4">
-        {safeImages.map((img: string) => (
-          <img
+      {/* ✅ THUMBNAILS */}
+      <div className="flex gap-3 mt-4 overflow-x-auto">
+        {safeImages.map((img) => (
+          <button
             key={img}
-            src={img}
             onClick={() => setSelected(img)}
-            className="w-20 h-20 object-cover rounded cursor-pointer border hover:scale-110 transition"
-          />
+            className={`rounded-lg overflow-hidden border-2 transition ${
+              selected === img
+                ? "border-black"
+                : "border-transparent opacity-70 hover:opacity-100"
+            }`}
+          >
+            <img
+              src={img}
+              alt="Thumbnail"
+              loading="lazy"
+              className="w-20 h-20 object-cover"
+            />
+          </button>
         ))}
       </div>
     </div>
   )
 }
-  
