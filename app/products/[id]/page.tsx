@@ -10,7 +10,7 @@ type Props = {
 
 function formatPrice(price: number | string) {
   const value = Number(price)
-  return Number.isFinite(value) ? value.toFixed(2) : String(price)
+  return Number.isFinite(value) ? value.toFixed(2) : "0.00"
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -34,10 +34,13 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+        
+        {/* ✅ IMAGE SECTION */}
         <section className="rounded-3xl border bg-background p-3 shadow-sm">
-          <ProductGallery images={product.images || []} />
+          <ProductGallery images={product.images ?? []} />
         </section>
 
+        {/* ✅ INFO SECTION */}
         <section className="space-y-6">
           <div className="space-y-3">
             {product.category && (
@@ -48,13 +51,14 @@ export default async function ProductPage({ params }: Props) {
 
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                {product.name}
+                {product.name || "Product"}
               </h1>
 
               <div className="flex items-center gap-3">
                 <p className="text-3xl font-semibold">
                   ${formatPrice(product.price)}
                 </p>
+
                 <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                   Premium Product
                 </span>
@@ -62,6 +66,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
+          {/* ✅ FEATURES */}
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border bg-muted/30 p-4">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -85,13 +90,15 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
+          {/* ✅ DESCRIPTION */}
           <div className="rounded-3xl border bg-background p-6 shadow-sm">
             <h2 className="text-lg font-semibold">Product details</h2>
             <p className="mt-4 leading-8 text-muted-foreground">
-              {product.description}
+              {product.description || "No description available."}
             </p>
           </div>
 
+          {/* ✅ EXTRA INFO */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-3xl border bg-background p-6 shadow-sm">
               <h3 className="font-semibold">Why customers like it</h3>
@@ -108,6 +115,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
 
+          {/* ✅ ADD TO CART */}
           <div className="rounded-3xl bg-muted/40 p-6">
             <AddToCartSticky product={product} />
           </div>
