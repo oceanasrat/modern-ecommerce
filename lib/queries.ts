@@ -1,4 +1,4 @@
-import { client } from "@/lib/sanity"
+import { getProducts } from "../../lib/queries"
 
 // ✅ GET ALL PRODUCTS
 export async function getProducts() {
