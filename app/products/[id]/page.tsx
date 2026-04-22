@@ -5,7 +5,7 @@ import ProductGallery from "@/components/products/ProductGallery"
 import AddToCartSticky from "@/components/products/AddToCartSticky"
 
 type Props = {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 function formatPrice(price: number | string) {
@@ -14,11 +14,12 @@ function formatPrice(price: number | string) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { id } = await params
+  const id = params.id
+
   const product = await getProduct(id)
 
   if (!product) {
-    notFound()
+    return notFound()
   }
 
   return (
@@ -34,7 +35,7 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
         <section className="rounded-3xl border bg-background p-3 shadow-sm">
-          <ProductGallery images={product.images} />
+          <ProductGallery images={product.images || []} />
         </section>
 
         <section className="space-y-6">
@@ -95,16 +96,14 @@ export default async function ProductPage({ params }: Props) {
             <div className="rounded-3xl border bg-background p-6 shadow-sm">
               <h3 className="font-semibold">Why customers like it</h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                Carefully selected for quality, value, and a premium shopping
-                experience.
+                Carefully selected for quality, value, and a premium shopping experience.
               </p>
             </div>
 
             <div className="rounded-3xl border bg-background p-6 shadow-sm">
               <h3 className="font-semibold">What to expect</h3>
               <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                A clean checkout, reliable fulfillment, and support that feels
-                professional.
+                A clean checkout, reliable fulfillment, and support that feels professional.
               </p>
             </div>
           </div>
