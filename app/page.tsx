@@ -25,6 +25,12 @@ export default async function HomePage() {
   const kitchen = products.filter((p: any) => p.category === "kitchen")
   const health = products.filter((p: any) => p.category === "health")
 
+  // ✅ NORMALIZE PRODUCTS (CRITICAL FIX)
+  const normalize = (product: any) => ({
+    ...product,
+    id: product._id,
+  })
+
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
 
@@ -57,98 +63,92 @@ export default async function HomePage() {
         </h1>
       </section>
 
-      {/* 🔥 CATEGORY TILES (VERY IMPORTANT UX) */}
+      {/* CATEGORY TILES */}
       <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <Link href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow transition">
+          🐶
+          <p className="mt-2 font-semibold">Pet</p>
+        </Link>
 
-  <Link href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow transition">
-    🐶
-    <p className="mt-2 font-semibold">Pet</p>
-  </Link>
+        <Link href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💄
+          <p className="mt-2 font-semibold">Beauty</p>
+        </Link>
 
-  <Link href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow transition">
-    💄
-    <p className="mt-2 font-semibold">Beauty</p>
-  </Link>
+        <Link href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow transition">
+          🍳
+          <p className="mt-2 font-semibold">Kitchen</p>
+        </Link>
 
-  <Link href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow transition">
-    🍳
-    <p className="mt-2 font-semibold">Kitchen</p>
-  </Link>
+        <Link href="/category/health" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💊
+          <p className="mt-2 font-semibold">Health</p>
+        </Link>
 
-  <Link href="/category/health" className="rounded-xl border p-6 text-center hover:shadow transition">
-    💊
-    <p className="mt-2 font-semibold">Health</p>
-  </Link>
-
-  <Link href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow transition">
-    💻
-    <p className="mt-2 font-semibold">Electronics</p>
-  </Link>
-
-</section>
+        <Link href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow transition">
+          💻
+          <p className="mt-2 font-semibold">Electronics</p>
+        </Link>
+      </section>
 
       {/* SEARCH */}
       <SearchBar products={products} />
 
-      {/* 🔥 BEST SELLERS */}
+      {/* BEST SELLERS */}
       {bestSellers.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold mb-6">🔥 Best Sellers</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {bestSellers.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={normalize(product)} />
             ))}
           </div>
         </section>
       )}
 
-      {/* 🐶 PET */}
+      {/* PET */}
       {pet.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold mb-6">🐶 Pet Products</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {pet.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={normalize(product)} />
             ))}
           </div>
         </section>
       )}
 
-      {/* 💄 BEAUTY */}
+      {/* BEAUTY */}
       {beauty.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold mb-6">💄 Beauty</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {beauty.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={normalize(product)} />
             ))}
           </div>
         </section>
       )}
 
-      {/* 🍳 KITCHEN */}
+      {/* KITCHEN */}
       {kitchen.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold mb-6">🍳 Kitchen</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {kitchen.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={normalize(product)} />
             ))}
           </div>
         </section>
       )}
 
-      {/* 💊 HEALTH */}
+      {/* HEALTH */}
       {health.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {health.map((product: any) => (
-              <ProductCard key={product._id} product={{
-
-    ...product,
-
-    id: product._id, />
+              <ProductCard key={product._id} product={normalize(product)} />
             ))}
           </div>
         </section>
@@ -159,7 +159,7 @@ export default async function HomePage() {
         <h2 className="text-2xl font-bold mb-6">All Products</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {products.map((product: any) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard key={product._id} product={normalize(product)} />
           ))}
         </div>
       </section>
