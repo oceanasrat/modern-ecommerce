@@ -18,7 +18,7 @@ export default async function HomePage() {
     { cache: "no-store" }
   )
 
-  // 🔥 FILTER PRODUCTS BY CATEGORY
+  // 🔥 FILTER PRODUCTS
   const bestSellers = products.filter((p: any) => p.isBestSeller)
   const pet = products.filter((p: any) => p.category === "pet")
   const beauty = products.filter((p: any) => p.category === "beauty")
@@ -27,8 +27,15 @@ export default async function HomePage() {
 
   // ✅ NORMALIZE PRODUCTS (CRITICAL FIX)
   const normalize = (product: any) => ({
-    ...product,
-    id: product._id,
+    id: product._id, // 🔥 THIS FIXES /products/undefined
+    name: product.name,
+    price: product.price,
+    image: product.image,
+    category: product.category,
+    rating: product.rating,
+    reviews: product.reviews,
+    isBestSeller: product.isBestSeller,
+    stock: product.stock,
   })
 
   return (
@@ -37,7 +44,11 @@ export default async function HomePage() {
       {/* HERO BANNER */}
       {banners?.length === 1 && (
         <section className="relative w-full h-[450px] md:h-[600px] rounded-2xl overflow-hidden">
-          <img src={banners[0].image} className="w-full h-full object-cover" />
+          <img
+            src={banners[0].image}
+            alt={banners[0].title}
+            className="w-full h-full object-cover"
+          />
 
           <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white text-center px-6">
             <h2 className="text-4xl md:text-6xl font-bold mb-4">
@@ -92,7 +103,7 @@ export default async function HomePage() {
       </section>
 
       {/* SEARCH */}
-      <SearchBar products={products} />
+      <SearchBar products={products.map(normalize)} />
 
       {/* BEST SELLERS */}
       {bestSellers.length > 0 && (
