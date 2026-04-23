@@ -144,7 +144,11 @@ export default async function HomePage() {
           <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {health.map((product: any) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard key={product._id} product={{
+
+    ...product,
+
+    id: product._id, />
             ))}
           </div>
         </section>
