@@ -8,14 +8,12 @@ import { useCartStore } from "@/lib/store"
 import { ShoppingCart, Star } from "lucide-react"
 
 type Product = {
-  id: string | number
+  _id: string // ✅ FIXED
   name: string
   price: string | number
   image: string
   category?: string
   description?: string
-
-  // ✅ NEW (optional fields — safe)
   rating?: number
   reviews?: number
   isBestSeller?: boolean
@@ -43,11 +41,8 @@ export default function ProductCard({ product }: { product: Product }) {
     >
       <Card className="flex h-full flex-col overflow-hidden rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-xl">
 
-        {/* SINGLE LINK WRAPPER */}
-        <Link
-          href={`/products/${product.id}`}
-          className="block"
-        >
+        {/* ✅ FIXED LINK */}
+        <Link href={`/products/${product._id}`} className="block">
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
 
             <img
@@ -56,24 +51,20 @@ export default function ProductCard({ product }: { product: Product }) {
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
 
-            {/* Overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
 
-            {/* 🔥 Best Seller */}
             {product.isBestSeller && (
               <div className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white shadow">
                 🔥 Best Seller
               </div>
             )}
 
-            {/* Category */}
             {product.category && (
               <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
                 {product.category}
               </div>
             )}
 
-            {/* ⭐ Rating (overlay bottom) */}
             <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-xs shadow backdrop-blur">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
               {rating.toFixed(1)} ({reviews})
@@ -82,7 +73,6 @@ export default function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
 
-        {/* CONTENT */}
         <CardContent className="flex flex-1 flex-col p-5">
 
           <h3 className="text-base font-semibold tracking-tight">
@@ -93,14 +83,12 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.description || "Premium product"}
           </p>
 
-          {/* ⭐ Inline rating (extra trust) */}
           <div className="mt-2 flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
             <span className="font-medium">{rating.toFixed(1)}</span>
             <span className="text-muted-foreground">({reviews}+ verified buyers)</span>
           </div>
 
-          {/* ⏳ Stock urgency */}
           {stock <= 5 && (
             <p className="mt-2 text-xs font-medium text-red-500">
               ⏳ Only {stock} left in stock
@@ -113,14 +101,13 @@ export default function ProductCard({ product }: { product: Product }) {
               ${displayPrice}
             </p>
 
-            {/* BUTTON */}
             <Button
               size="sm"
               className="rounded-full px-4"
               onClick={(e) => {
                 e.preventDefault()
                 addItem({
-                  id: String(product.id),
+                  id: product._id, // ✅ FIXED
                   name: product.name,
                   price: numericPrice,
                   image: product.image,
