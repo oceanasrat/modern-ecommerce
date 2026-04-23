@@ -8,7 +8,8 @@ import { useCartStore } from "@/lib/store"
 import { ShoppingCart, Star } from "lucide-react"
 
 type Product = {
-  _id: string // ✅ FIXED
+  id?: string          // ✅ NEW
+  _id?: string         // ✅ KEEP BOTH
   name: string
   price: string | number
   image: string
@@ -22,6 +23,9 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
+
+  // ✅ FIX: SUPPORT BOTH id AND _id
+  const productId = product.id || product._id
 
   const numericPrice = Number(product.price)
   const displayPrice = Number.isFinite(numericPrice)
@@ -42,7 +46,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <Card className="flex h-full flex-col overflow-hidden rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-xl">
 
         {/* ✅ FIXED LINK */}
-        <Link href={`/products/${product._id}`} className="block">
+        <Link href={`/products/${productId}`} className="block">
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
 
             <img
@@ -107,7 +111,7 @@ export default function ProductCard({ product }: { product: Product }) {
               onClick={(e) => {
                 e.preventDefault()
                 addItem({
-                  id: product._id, // ✅ FIXED
+                  id: productId!, // ✅ FIXED
                   name: product.name,
                   price: numericPrice,
                   image: product.image,
