@@ -8,7 +8,6 @@ export default async function CategoryPage({
 }) {
   const products = await getProducts()
 
-  // ✅ SAFE FILTER (fixes your issue)
   const filtered = products.filter(
     (p: any) =>
       p.category?.trim().toLowerCase() === params.slug.toLowerCase()
@@ -33,7 +32,13 @@ export default async function CategoryPage({
       ) : (
         <div className="grid md:grid-cols-3 gap-6">
           {filtered.map((product: any) => (
-            <ProductCard key={product._id} product={product} />
+            <ProductCard
+              key={product._id}
+              product={{
+                ...product,
+                id: product._id, // ✅ FIX (CRITICAL)
+              }}
+            />
           ))}
         </div>
       )}
