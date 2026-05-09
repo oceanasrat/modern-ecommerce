@@ -5,6 +5,10 @@ export async function getProducts() {
   return await client.fetch(
     `*[_type == "product"]{
       _id,
+
+      // ✅ Include slug
+      "slug": slug.current,
+
       name,
       "price": coalesce(price, 0),
       description,
@@ -22,11 +26,15 @@ export async function getProducts() {
 }
 
 /** ✅ GET SINGLE PRODUCT **/
-export async function getProduct(id: string) {
-  // ✅ [0] returns a SINGLE object instead of array
+export async function getProduct(slug: string) {
+  // ✅ Fetch by slug instead of _id
   const product = await client.fetch(
-    `*[_type == "product" && _id == $id][0]{
+    `*[_type == "product" && slug.current == $slug][0]{
       _id,
+
+      // ✅ Include slug
+      "slug": slug.current,
+
       name,
       "price": coalesce(price, 0),
       description,
@@ -38,7 +46,7 @@ export async function getProduct(id: string) {
       rating,
       stock
     }`,
-    { id },
+    { slug },
     { cache: "no-store" }
   )
 
@@ -49,22 +57,32 @@ export async function getProduct(id: string) {
 
     // ✅ Safety cleanup
     images: Array.isArray(product.images)
-      ? product.images.filter((img: any) => typeof img === "string")
+      ? product.images.filter(
+          (img: any) =>
+            typeof img === "string"
+        )
       : [],
   }
 }
 
 /** ✅ GET PRODUCTS BY CATEGORY **/
-export async function getProductsByCategory(categoryName: string) {
+export async function getProductsByCategory(
+  categoryName: string
+) {
   return await client.fetch(
     `*[_type == "product" && category == $categoryName]{
       _id,
+
+      // ✅ Include slug
+      "slug": slug.current,
+
       name,
 
       // ✅ First image only
       "image": images[0].asset->url,
 
       "price": coalesce(price, 0),
+
       category,
       isBestSeller,
       rating
@@ -77,7 +95,8 @@ export async function getProductsByCategory(categoryName: string) {
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
   const name = slug
-    ? slug.charAt(0).toUpperCase() + slug.slice(1)
+    ? slug.charAt(0).toUpperCase() +
+      slug.slice(1)
     : "Collection"
 
   return {
