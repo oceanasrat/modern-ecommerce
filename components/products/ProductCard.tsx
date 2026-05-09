@@ -7,13 +7,22 @@ import { ShoppingBag, Star } from "lucide-react"
 
 export default function ProductCard({ product }: { product: any }) {
   const addItem = useCartStore((state) => state.addItem)
-  
-  // ✅ ID fix: Ensures clicking the card doesn't lead to a 404
-  const productId = product?._id || product?.id
 
-  // ✅ $NaN Fix: Ensures price is always a valid number
+  // ✅ Safe product ID
+  const productId = product?._id || product?.id || ""
+
+  // ✅ Safe price handling
   const rawPrice = Number(product?.price)
-  const displayPrice = isNaN(rawPrice) ? "0.00" : rawPrice.toFixed(2)
+  const displayPrice = isNaN(rawPrice)
+    ? "0.00"
+    : rawPrice.toFixed(2)
+
+  // ✅ Safe image handling
+  const imageSrc =
+    typeof product?.image === "string" &&
+    product.image.startsWith("http")
+      ? product.image
+      : "/placeholder.png"
 
   return (
     <motion.div
@@ -23,35 +32,42 @@ export default function ProductCard({ product }: { product: any }) {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="group relative flex flex-col gap-4"
     >
-      {/* IMAGE CONTAINER */}
+      {/* IMAGE */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-900">
-        <Link href={`/products/${productId}`} className="block h-full w-full">
-          {/* ✅ Image Fix: Uses the URL we fetched from the images array */}
+        <Link
+          href={`/products/${productId}`}
+          className="block h-full w-full"
+        >
           <img
-            src={product?.image || "/placeholder.png"}
+            src={imageSrc}
             alt={product?.name || "Product"}
+            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.png"
+            }}
           />
         </Link>
 
-        {/* FLOATING BADGES */}
+        {/* BADGE */}
         {product?.isBestSeller && (
           <div className="absolute left-3 top-3 rounded-full bg-black/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md dark:bg-white/90 dark:text-black">
             Best Seller
           </div>
         )}
 
-        {/* QUICK ADD BUTTON */}
+        {/* QUICK ADD */}
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 translate-y-10 items-center justify-center opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
           <button
             onClick={(e) => {
               e.preventDefault()
-              addItem({ 
-                id: productId!, 
-                name: product?.name, 
-                image: product?.image, 
-                quantity: 1, 
-                price: isNaN(rawPrice) ? 0 : rawPrice 
+
+              addItem({
+                id: productId,
+                name: product?.name || "Product",
+                image: imageSrc,
+                quantity: 1,
+                price: isNaN(rawPrice) ? 0 : rawPrice,
               })
             }}
             className="flex items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-black shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
@@ -62,23 +78,28 @@ export default function ProductCard({ product }: { product: any }) {
         </div>
       </div>
 
-      {/* TEXT CONTENT */}
+      {/* TEXT */}
       <div className="flex flex-col gap-1 px-1">
         <div className="flex items-center justify-between text-sm">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             {product?.category || "Premium"}
           </p>
+
           <div className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-zinc-900 text-zinc-900 dark:fill-zinc-100 dark:text-zinc-100" />
-            <span className="font-medium">{product?.rating || 4.5}</span>
+
+            <span className="font-medium">
+              {product?.rating || 4.5}
+            </span>
           </div>
         </div>
 
         <Link href={`/products/${productId}`}>
           <h3 className="line-clamp-1 text-base font-medium tracking-tight text-foreground transition-colors hover:text-muted-foreground">
-            {product?.name}
+            {product?.name || "Unnamed Product"}
           </h3>
         </Link>
+
         <p className="text-base font-semibold text-foreground">
           ${displayPrice}
         </p>
