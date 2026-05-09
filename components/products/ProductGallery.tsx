@@ -5,19 +5,19 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export default function ProductGallery({ images }: { images: string[] }) {
-  // 🔍 DEBUG: Open your browser console (F12) to see what is actually arriving
+  // 🔍 DEBUG: Helps us see what data is coming in from Sanity
   useEffect(() => {
-    console.log("Gallery received images raw data:", images)
+    console.log("Gallery received images data:", images)
   }, [images])
 
-  // ✅ ENHANCED SAFETY: Filters out non-strings and ensures we have a valid array
+  // ✅ Safety Check: Filter and ensure we have an array of strings
   const safeImages = Array.isArray(images) && images.length > 0 
     ? images.filter(img => typeof img === 'string' && img.trim() !== "")
     : ["/placeholder.png"]
 
   const [selected, setSelected] = useState(0)
 
-  // If the index gets out of bounds during a re-render, reset it to 0
+  // Ensure selected index is always within bounds
   const currentIndex = selected >= safeImages.length ? 0 : selected
 
   return (
@@ -37,7 +37,6 @@ export default function ProductGallery({ images }: { images: string[] }) {
             src={safeImages[currentIndex]}
             alt="Product view"
             className="h-full w-full object-cover"
-            // ✅ Fallback if the URL itself is broken/404
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/placeholder.png"
             }}
@@ -46,6 +45,7 @@ export default function ProductGallery({ images }: { images: string[] }) {
       </AnimatePresence>
 
       {/* THUMBNAIL DOCK */}
+      {/* ✅ FIXED: We now check safeImages instead of the whole array */}
       {safeImages.length > 1 && safeImages !== "/placeholder.png" && (
         <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-black/20 p-2 backdrop-blur-xl dark:bg-white/20">
           {safeImages.map((img, idx) => (
