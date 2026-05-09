@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation"
 import Link from "next/link"
 import { getProduct } from "@/lib/queries"
 import ProductGallery from "@/components/products/ProductGallery"
@@ -9,7 +8,6 @@ import {
   RotateCcw,
 } from "lucide-react"
 
-// ✅ Always fetch fresh data
 export const revalidate = 0
 
 type Props = {
@@ -22,19 +20,46 @@ export default async function ProductPage({
   params,
 }: Props) {
 
-  // ✅ USE REAL PRODUCT ID
-  const id = params.id
+  // ✅ Get route param safely
+  const id = decodeURIComponent(params.id)
 
-  // ✅ Prevent invalid routes
-  if (!id || id === "undefined") {
-    return notFound()
-  }
+  // ✅ DEBUG LOG
+  console.log("Route ID:", id)
 
-  // ✅ Fetch by _id
+  // ✅ Fetch product
   const product = await getProduct(id)
 
+  // ✅ Instead of hidden 404, show debug screen
   if (!product) {
-    return notFound()
+    return (
+      <main className="min-h-screen flex items-center justify-center p-10">
+        <div className="max-w-xl rounded-2xl border p-8 space-y-4">
+          <h1 className="text-2xl font-bold">
+            Product Not Found
+          </h1>
+
+          <p>
+            No product matched this route:
+          </p>
+
+          <code className="block rounded bg-zinc-100 p-3 text-sm">
+            {id}
+          </code>
+
+          <p className="text-sm text-muted-foreground">
+            This means the route exists,
+            but Sanity returned null.
+          </p>
+
+          <Link
+            href="/"
+            className="inline-block rounded-lg bg-black px-4 py-2 text-white"
+          >
+            Back Home
+          </Link>
+        </div>
+      </main>
+    )
   }
 
   // ✅ Safe price formatting
@@ -51,6 +76,7 @@ export default async function ProductPage({
     <main className="min-h-screen bg-background pb-20">
       <div className="mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8">
 
+        {/* BACK BUTTON */}
         <Link
           href="/"
           className="group mb-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
@@ -72,10 +98,11 @@ export default async function ProductPage({
             />
           </section>
 
-          {/* CONTENT */}
+          {/* PRODUCT CONTENT */}
           <section className="flex flex-col lg:col-span-5 lg:py-10">
 
             <div className="mb-8 space-y-4">
+
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
                 {product.category || "Exclusive"}
               </span>
@@ -87,6 +114,7 @@ export default async function ProductPage({
               <p className="text-3xl font-light text-foreground/90">
                 {displayPrice}
               </p>
+
             </div>
 
             <p className="text-lg leading-relaxed text-muted-foreground/90">
@@ -102,6 +130,7 @@ export default async function ProductPage({
                   className="h-6 w-6"
                   strokeWidth={1}
                 />
+
                 <span className="text-[10px] font-bold uppercase tracking-widest">
                   Free Shipping
                 </span>
@@ -112,6 +141,7 @@ export default async function ProductPage({
                   className="h-6 w-6"
                   strokeWidth={1}
                 />
+
                 <span className="text-[10px] font-bold uppercase tracking-widest">
                   Secure Payment
                 </span>
@@ -122,6 +152,7 @@ export default async function ProductPage({
                   className="h-6 w-6"
                   strokeWidth={1}
                 />
+
                 <span className="text-[10px] font-bold uppercase tracking-widest">
                   30-Day Returns
                 </span>
@@ -129,6 +160,7 @@ export default async function ProductPage({
 
             </div>
 
+            {/* CTA */}
             <button className="flex w-full items-center justify-center rounded-full bg-foreground px-8 py-6 text-base font-bold text-background transition-transform hover:scale-[1.02] active:scale-[0.98]">
               Add to Cart — {displayPrice}
             </button>
