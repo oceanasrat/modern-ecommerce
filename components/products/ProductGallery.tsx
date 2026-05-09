@@ -1,75 +1,56 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
+import { useState } from "react"
+import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
+import { cn } from "@/lib/utils"
 
-type Props = {
-  images?: string[]
-}
-
-export default function ProductGallery({ images }: Props) {
-  // ✅ SAFE IMAGES (NO CRASH)
-  const safeImages = Array.isArray(images)
-    ? images.filter((img) => typeof img === "string" && img)
-    : []
-
-  const [selected, setSelected] = useState<string | null>(null)
-
-  // ✅ SET DEFAULT IMAGE
-  useEffect(() => {
-    if (safeImages.length > 0) {
-      setSelected(safeImages[0])
-    }
-  }, [safeImages])
-
-  // ✅ EMPTY STATE
-  if (safeImages.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-[400px] bg-muted rounded-xl">
-        <p className="text-muted-foreground">No image available</p>
-      </div>
-    )
-  }
+export default function ProductGallery({ images }: { images: string[] }) {
+  const safeImages = images && images.length > 0 ? images : ["/placeholder.png"]
+  const [selected, setSelected] = useState(0)
 
   return (
-    <div className="w-full">
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-900 lg:aspect-auto lg:h-[800px]">
       
-      {/* MAIN IMAGE */}
-      <div className="overflow-hidden rounded-2xl border bg-white">
-        {selected && (
-          <motion.img
-            key={selected}
-            src={selected}
+      {/* MAIN IMAGE WITH SMOOTH FADE */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selected}
+          initial={{ opacity: 0, filter: "blur(8px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, filter: "blur(8px)" }}
+          transition={{ duration: 0.4 }}
+          className="absolute inset-0"
+        >
+          <Image
+            src={safeImages[selected]}
             alt="Product image"
-            className="w-full h-[400px] md:h-[500px] object-cover cursor-zoom-in"
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.3 }}
+            fill
+            className="object-cover"
+            priority
           />
-        )}
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
-      {/* THUMBNAILS */}
-      <div className="flex gap-3 mt-4 overflow-x-auto">
-        {safeImages.map((img) =>
-          img ? (
+      {/* FLOATING THUMBNAIL DOCK */}
+      {safeImages.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-black/20 p-2 backdrop-blur-xl dark:bg-white/20">
+          {safeImages.map((img, idx) => (
             <button
-              key={img}
-              onClick={() => setSelected(img)}
-              className={`rounded-lg overflow-hidden border-2 transition ${
-                selected === img
-                  ? "border-black"
-                  : "border-transparent opacity-70 hover:opacity-100"
-              }`}
+              key={idx}
+              onClick={() => setSelected(idx)}
+              className={cn(
+                "relative h-14 w-14 overflow-hidden rounded-full border-2 transition-all duration-300",
+                selected === idx
+                  ? "border-white scale-110 shadow-lg"
+                  : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
+              )}
             >
-              <img
-                src={img}
-                alt="Thumbnail"
-                className="w-20 h-20 object-cover"
-              />
+              <Image src={img} alt={`Thumb ${idx}`} fill className="object-cover" />
             </button>
-          ) : null
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
