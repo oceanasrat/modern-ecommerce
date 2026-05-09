@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import Image from "next/image"
 import { useCartStore } from "@/lib/store"
 import { ShoppingBag, Star } from "lucide-react"
 
@@ -33,12 +32,11 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* IMAGE CONTAINER */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-900">
         <Link href={`/products/${productId}`} className="block h-full w-full">
-          <Image
+          {/* Reverted to standard img tag to bypass Next.js domain restrictions */}
+          <img
             src={product.image || "/placeholder.png"}
             alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         </Link>
 
@@ -53,8 +51,14 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 translate-y-10 items-center justify-center opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
           <button
             onClick={(e) => {
-              e.preventDefault()
-              addItem({ ...product, id: productId!, quantity: 1, price: Number(product.price) })
+               e.preventDefault()
+               addItem({ 
+                 id: productId!, 
+                 name: product.name,
+                 image: product.image,
+                 quantity: 1, 
+                 price: Number(product.price) 
+               })
             }}
             className="flex items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-black shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
           >
