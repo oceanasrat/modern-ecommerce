@@ -4,6 +4,7 @@ import { getProduct } from "@/lib/queries"
 import ProductGallery from "@/components/products/ProductGallery"
 import { ChevronLeft, Truck, Shield, RotateCcw } from "lucide-react"
 
+// Ensure Next.js 15+ param promise pattern is met
 type Props = {
   params: Promise<{ id: string }>
 }
