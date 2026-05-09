@@ -4,8 +4,9 @@ import { getProduct } from "@/lib/queries"
 import ProductGallery from "@/components/products/ProductGallery"
 import AddToCartSticky from "@/components/products/AddToCartSticky"
 
+// ✅ Corrected type for Next.js 15/16
 type Props = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 function formatPrice(price: number | string) {
@@ -14,9 +15,10 @@ function formatPrice(price: number | string) {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const id = params?.id
+  // ✅ MUST AWAIT PARAMS
+  const { id } = await params
 
-  // 🚨 HARD GUARD (CRITICAL FIX)
+  // 🚨 HARD GUARD
   if (!id || id === "undefined") {
     console.error("❌ Invalid product ID:", id)
     return notFound()
@@ -61,10 +63,19 @@ export default async function ProductPage({ params }: Props) {
             {product.description || "No description available."}
           </p>
 
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>🚚 Fast Shipping</div>
-            <div>🔒 Secure Payment</div>
-            <div>↩️ Easy Returns</div>
+          <div className="grid grid-cols-3 gap-4 text-sm border-y py-4 my-6">
+            <div className="flex flex-col items-center text-center gap-1">
+              <span>🚚</span>
+              <span>Fast Shipping</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1 border-x">
+              <span>🔒</span>
+              <span>Secure Payment</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1">
+              <span>↩️</span>
+              <span>Easy Returns</span>
+            </div>
           </div>
 
           <AddToCartSticky product={product} />
