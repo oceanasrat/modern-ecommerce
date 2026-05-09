@@ -5,10 +5,6 @@ export async function getProducts() {
   return await client.fetch(
     `*[_type == "product"]{
       _id,
-
-      // ✅ Include slug
-      "slug": slug.current,
-
       name,
       "price": coalesce(price, 0),
       description,
@@ -26,27 +22,23 @@ export async function getProducts() {
 }
 
 /** ✅ GET SINGLE PRODUCT **/
-export async function getProduct(slug: string) {
-  // ✅ Fetch by slug instead of _id
+export async function getProduct(id: string) {
   const product = await client.fetch(
-    `*[_type == "product" && slug.current == $slug][0]{
+    `*[_type == "product" && _id == $id][0]{
       _id,
-
-      // ✅ Include slug
-      "slug": slug.current,
-
       name,
       "price": coalesce(price, 0),
       description,
 
-      // ✅ Get all image URLs
+      // ✅ All gallery images
       "images": images[].asset->url,
 
       category,
       rating,
-      stock
+      stock,
+      isBestSeller
     }`,
-    { slug },
+    { id },
     { cache: "no-store" }
   )
 
@@ -55,7 +47,6 @@ export async function getProduct(slug: string) {
   return {
     ...product,
 
-    // ✅ Safety cleanup
     images: Array.isArray(product.images)
       ? product.images.filter(
           (img: any) =>
@@ -72,13 +63,8 @@ export async function getProductsByCategory(
   return await client.fetch(
     `*[_type == "product" && category == $categoryName]{
       _id,
-
-      // ✅ Include slug
-      "slug": slug.current,
-
       name,
 
-      // ✅ First image only
       "image": images[0].asset->url,
 
       "price": coalesce(price, 0),
