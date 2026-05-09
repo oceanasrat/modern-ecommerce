@@ -2,132 +2,89 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import { useCartStore } from "@/lib/store"
-import { ShoppingCart, Star } from "lucide-react"
+import { ShoppingBag, Star } from "lucide-react"
 
 type Product = {
-  id?: string          // ✅ NEW
-  _id?: string         // ✅ KEEP BOTH
+  id?: string
+  _id?: string
   name: string
   price: string | number
   image: string
   category?: string
-  description?: string
   rating?: number
   reviews?: number
   isBestSeller?: boolean
-  stock?: number
 }
 
 export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem)
-
-  // ✅ FIX: SUPPORT BOTH id AND _id
   const productId = product.id || product._id
-
-  const numericPrice = Number(product.price)
-  const displayPrice = Number.isFinite(numericPrice)
-    ? numericPrice.toFixed(2)
-    : "0.00"
-
-  const rating = product.rating || 4.5
-  const reviews = product.reviews || 120
-  const stock = product.stock ?? 10
 
   return (
     <motion.div
-      whileHover={{ y: -6 }}
-      whileTap={{ scale: 0.99 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      className="group h-full"
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="group relative flex flex-col gap-4"
     >
-      <Card className="flex h-full flex-col overflow-hidden rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-xl">
-
-        {/* ✅ FIXED LINK */}
-        <Link href={`/products/${productId}`} className="block">
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
-
-            <img
-              src={product.image}
-              alt={product.name}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-
-            <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
-
-            {product.isBestSeller && (
-              <div className="absolute right-4 top-4 rounded-full bg-red-500 px-3 py-1 text-xs font-semibold text-white shadow">
-                🔥 Best Seller
-              </div>
-            )}
-
-            {product.category && (
-              <div className="absolute left-4 top-4 rounded-full bg-background/90 px-3 py-1 text-xs font-medium shadow">
-                {product.category}
-              </div>
-            )}
-
-            <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-xs shadow backdrop-blur">
-              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-              {rating.toFixed(1)} ({reviews})
-            </div>
-
-          </div>
+      {/* IMAGE CONTAINER */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-900">
+        <Link href={`/products/${productId}`} className="block h-full w-full">
+          <Image
+            src={product.image || "/placeholder.png"}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
         </Link>
 
-        <CardContent className="flex flex-1 flex-col p-5">
+        {/* FLOATING BADGES */}
+        {product.isBestSeller && (
+          <div className="absolute left-3 top-3 rounded-full bg-black/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md dark:bg-white/90 dark:text-black">
+            Best Seller
+          </div>
+        )}
 
-          <h3 className="text-base font-semibold tracking-tight">
+        {/* FLOATING ADD TO CART PILL (Appears on Hover) */}
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 translate-y-10 items-center justify-center opacity-0 transition-all duration-500 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              addItem({ ...product, id: productId!, quantity: 1, price: Number(product.price) })
+            }}
+            className="flex items-center gap-2 rounded-full bg-white/95 px-6 py-3 text-sm font-semibold text-black shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
+          >
+            <ShoppingBag className="h-4 w-4" />
+            Quick Add
+          </button>
+        </div>
+      </div>
+
+      {/* TEXT CONTENT */}
+      <div className="flex flex-col gap-1 px-1">
+        <div className="flex items-center justify-between text-sm">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            {product.category || "Premium"}
+          </p>
+          <div className="flex items-center gap-1">
+            <Star className="h-3.5 w-3.5 fill-zinc-900 text-zinc-900 dark:fill-zinc-100 dark:text-zinc-100" />
+            <span className="font-medium">{product.rating || 4.8}</span>
+          </div>
+        </div>
+
+        <Link href={`/products/${productId}`}>
+          <h3 className="line-clamp-1 text-base font-medium tracking-tight text-foreground transition-colors hover:text-muted-foreground">
             {product.name}
           </h3>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            {product.description || "Premium product"}
-          </p>
-
-          <div className="mt-2 flex items-center gap-1 text-sm">
-            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-            <span className="font-medium">{rating.toFixed(1)}</span>
-            <span className="text-muted-foreground">({reviews}+ verified buyers)</span>
-          </div>
-
-          {stock <= 5 && (
-            <p className="mt-2 text-xs font-medium text-red-500">
-              ⏳ Only {stock} left in stock
-            </p>
-          )}
-
-          <div className="mt-5 flex items-center justify-between">
-
-            <p className="text-lg font-semibold">
-              ${displayPrice}
-            </p>
-
-            <Button
-              size="sm"
-              className="rounded-full px-4"
-              onClick={(e) => {
-                e.preventDefault()
-                addItem({
-                  id: productId!, // ✅ FIXED
-                  name: product.name,
-                  price: numericPrice,
-                  image: product.image,
-                  quantity: 1,
-                })
-              }}
-            >
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-
-          </div>
-
-        </CardContent>
-
-      </Card>
+        </Link>
+        <p className="text-base font-semibold text-foreground">
+          ${Number(product.price).toFixed(2)}
+        </p>
+      </div>
     </motion.div>
   )
 }
