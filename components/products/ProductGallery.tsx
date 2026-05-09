@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -9,26 +10,29 @@ export default function ProductGallery({ images }: { images: string[] }) {
   const [selected, setSelected] = useState(0)
 
   return (
-    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-900 lg:aspect-auto lg:h-[700px]">
+    <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-zinc-100 dark:bg-zinc-900 lg:aspect-auto lg:h-[800px]">
       
+      {/* MAIN IMAGE WITH SMOOTH FADE */}
       <AnimatePresence mode="wait">
         <motion.div
           key={selected}
-          initial={{ opacity: 0, filter: "blur(10px)" }}
+          initial={{ opacity: 0, filter: "blur(8px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0 }}
+          exit={{ opacity: 0, filter: "blur(8px)" }}
           transition={{ duration: 0.4 }}
           className="absolute inset-0"
         >
-          <img
+          <Image
             src={safeImages[selected]}
-            alt="Product view"
-            className="h-full w-full object-cover"
+            alt="Product image"
+            fill
+            className="object-cover"
+            priority
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* FLOATING DOCK OF THUMBNAILS */}
+      {/* FLOATING THUMBNAIL DOCK */}
       {safeImages.length > 1 && (
         <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-black/20 p-2 backdrop-blur-xl dark:bg-white/20">
           {safeImages.map((img, idx) => (
@@ -42,7 +46,7 @@ export default function ProductGallery({ images }: { images: string[] }) {
                   : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
               )}
             >
-              <img src={img} alt="" className="h-full w-full object-cover" />
+              <Image src={img} alt={`Thumb ${idx}`} fill className="object-cover" />
             </button>
           ))}
         </div>
