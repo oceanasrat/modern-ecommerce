@@ -15,64 +15,68 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProduct(id)
   if (!product) return notFound()
 
-  const price = Number(product.price).toFixed(2)
-
   return (
     <main className="min-h-screen bg-background pb-20">
-      <div className="mx-auto max-w-[1400px] px-4 pt-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 pt-8 sm:px-6 lg:px-8">
         
+        {/* DISCREET BREADCRUMB */}
         <Link 
           href="/" 
-          className="group mb-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+          className="group mb-8 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
         >
           <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Back to Collections
+          Back
         </Link>
 
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-20">
+        {/* ASYMMETRIC GRID LAYOUT */}
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
           
-          {/* GALLERY COLUMN (STICKY) */}
+          {/* LEFT COLUMN: STICKY GALLERY (7 Columns wide) */}
           <section className="lg:sticky lg:top-24 lg:col-span-7">
-            <ProductGallery images={product.images} />
+            <ProductGallery images={product.images || [product.image]} />
           </section>
 
-          {/* CONTENT COLUMN */}
-          <section className="flex flex-col lg:col-span-5 lg:py-10">
+          {/* RIGHT COLUMN: SCROLLING INFO (5 Columns wide) */}
+          <section className="flex flex-col lg:col-span-5 lg:py-12">
             
-            <div className="mb-8 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-                {product.category || "Exclusive"}
-              </span>
-              <h1 className="text-5xl font-black tracking-tighter text-foreground lg:text-6xl">
+            <div className="mb-6">
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {product.category || "Ocean Global Exclusive"}
+              </h2>
+              <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                 {product.name}
               </h1>
-              <p className="text-3xl font-light text-foreground/90">
-                ${price}
+              <p className="mt-4 text-3xl font-light text-foreground">
+                ${Number(product.price).toFixed(2)}
               </p>
             </div>
 
-            <p className="text-lg leading-relaxed text-muted-foreground/90">
-              {product.description || "Expertly crafted using the finest materials to ensure lasting quality and timeless style."}
-            </p>
+            <div className="prose prose-zinc mt-8 text-base leading-relaxed text-muted-foreground dark:prose-invert">
+              <p>{product.description || "Premium quality meets everyday functionality. Designed to elevate your standard of living."}</p>
+            </div>
 
-            <div className="my-12 grid grid-cols-3 gap-4 border-y border-zinc-100 py-10 dark:border-zinc-800">
-              <div className="flex flex-col items-center gap-3 text-center">
-                <Truck className="h-6 w-6" strokeWidth={1} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Free Shipping</span>
+            {/* TRUST ICON GRID */}
+            <div className="my-10 grid grid-cols-3 gap-4 border-y border-zinc-200 py-8 dark:border-zinc-800">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <Truck className="h-6 w-6 text-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Free Delivery</span>
               </div>
-              <div className="flex flex-col items-center gap-3 text-center border-x">
-                <Shield className="h-6 w-6" strokeWidth={1} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">2yr Warranty</span>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <Shield className="h-6 w-6 text-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Secure Checkout</span>
               </div>
-              <div className="flex flex-col items-center gap-3 text-center">
-                <RotateCcw className="h-6 w-6" strokeWidth={1} />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Easy Returns</span>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <RotateCcw className="h-6 w-6 text-foreground" strokeWidth={1.5} />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">30-Day Returns</span>
               </div>
             </div>
 
-            <button className="flex w-full items-center justify-center rounded-full bg-foreground px-8 py-6 text-base font-bold text-background transition-transform hover:scale-[1.02] active:scale-[0.98]">
-              Add to Cart — ${price}
-            </button>
+            {/* ADD TO CART ACTION AREA */}
+            <div className="mt-auto">
+              <button className="flex w-full items-center justify-center rounded-full bg-foreground px-8 py-5 text-base font-bold text-background transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                Add to Cart — ${Number(product.price).toFixed(2)}
+              </button>
+            </div>
 
           </section>
         </div>
