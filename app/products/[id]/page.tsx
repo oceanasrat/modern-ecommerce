@@ -21,15 +21,17 @@ type Props = {
 export default async function ProductPage({
   params,
 }: Props) {
-  const id = params.id
+
+  // ✅ id now represents the slug from URL
+  const slug = params.id
 
   // ✅ Prevent invalid routes
-  if (!id || id === "undefined") {
+  if (!slug || slug === "undefined") {
     return notFound()
   }
 
-  // ✅ Fetch product
-  const product = await getProduct(id)
+  // ✅ Fetch by slug
+  const product = await getProduct(slug)
 
   if (!product) {
     return notFound()
