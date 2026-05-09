@@ -25,22 +25,56 @@ export default async function HomePage() {
   const kitchen = products.filter((p: any) => p.category === "kitchen")
   const health = products.filter((p: any) => p.category === "health")
 
-  const normalize = (product: any) => ({
-  // ✅ Use slug for routing
-  id: product.slug || product._id,
+  const normalize = (product: any) => {
+  // ✅ DEBUG
+  console.log("NORMALIZING PRODUCT:", product)
 
-  // ✅ Keep original _id separately
-  _id: product._id,
+  return {
+    // ✅ PRIORITY:
+    // slug -> _id -> fallback
+    id:
+      product.slug ||
+      product._id ||
+      "missing-id",
 
-  name: product.name,
-  price: product.price,
-  image: product.image,
-  category: product.category,
-  rating: product.rating,
-  reviews: product.reviews,
-  isBestSeller: product.isBestSeller,
-  stock: product.stock,
-})
+    _id: product._id,
+
+    slug: product.slug,
+
+    name: product.name || "Unnamed Product",
+
+    price:
+      typeof product.price === "number"
+        ? product.price
+        : 0,
+
+    image:
+      typeof product.image === "string"
+        ? product.image
+        : "/placeholder.png",
+
+    category:
+      product.category || "Premium",
+
+    rating:
+      typeof product.rating === "number"
+        ? product.rating
+        : 4.8,
+
+    reviews:
+      typeof product.reviews === "number"
+        ? product.reviews
+        : 0,
+
+    isBestSeller:
+      Boolean(product.isBestSeller),
+
+    stock:
+      typeof product.stock === "number"
+        ? product.stock
+        : 0,
+  }
+}
 
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
