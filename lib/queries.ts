@@ -1,44 +1,36 @@
 import { client } from "./sanity"
 
-/**
- * ✅ GET ALL PRODUCTS
- * Used for the homepage grid.
- */
+/** ✅ GET ALL PRODUCTS (Fail-safe for images) **/
 export async function getProducts() {
   return client.fetch(
     `*[_type == "product"]{
       _id,
       name,
-      price,
+      "price": coalesce(price, 0),
       description,
-      "image": images.asset->url,
+      "image": coalesce(image.asset->url, images.asset->url, ""),
       "category": category->name,
+      "categorySlug": category->slug.current,
       rating,
-      reviews,
-      isBestSeller,
-      stock
+      isBestSeller
     }`,
     {},
     { cache: "no-store" }
   )
 }
 
-/**
- * ✅ GET SINGLE PRODUCT
- * Fetches full details and an array of all images for the gallery.
- */
+/** ✅ GET SINGLE PRODUCT **/
 export async function getProduct(id: string) {
   const product = await client.fetch(
     `*[_type == "product" && _id == $id]{
       _id,
       name,
-      price,
+      "price": coalesce(price, 0),
       description,
+      "image": image.asset->url,
       "images": images[].asset->url,
       "category": category->name,
       rating,
-      reviews,
-      isBestSeller,
       stock
     }`,
     { id },
@@ -47,44 +39,42 @@ export async function getProduct(id: string) {
 
   if (!product) return null
 
+  // Ensure images is always an array, even if empty
+  const allImages = []
+  if (product.image) allImages.push(product.image)
+  if (product.images) allImages.push(...product.images)
+
   return {
     ...product,
-    images: Array.isArray(product.images)
-      ? product.images.filter(
-          (img: string) => typeof img === "string" && img.length > 0
-        )
-      : [],
+    images: allImages.length > 0 ? allImages : ["/placeholder.png"]
   }
 }
 
-/**
- * ✅ GET PRODUCTS BY CATEGORY
- * Fixes the 500 error by fetching products filtered by the category slug.
- */
+/** ✅ GET PRODUCTS BY CATEGORY **/
 export async function getProductsByCategory(slug: string) {
-  const query = `*[_type == "product" && category->slug.current == $slug] {
-    _id,
-    name,
-    "image": images.asset->url,
-    price,
-    "category": category->name,
-    isBestSeller,
-    rating,
-    reviews
-  }`
-  
-  return await client.fetch(query, { slug }, { cache: "no-store" })
+  return await client.fetch(
+    `*[_type == "product" && category->slug.current == $slug] {
+      _id,
+      name,
+      "image": coalesce(image.asset->url, images.asset->url, ""),
+      "price": coalesce(price, 0),
+      "category": category->name,
+      isBestSeller,
+      rating
+    }`,
+    { slug },
+    { cache: "no-store" }
+  )
 }
 
-/**
- * ✅ GET CATEGORY DETAILS
- * Fetches the name and description of a category for the category header.
- */
+/** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
-  const query = `*[_type == "category" && slug.current == $slug] {
-    name,
-    description
-  }`
-  
-  return await client.fetch(query, { slug }, { cache: "no-store" })
+  return await client.fetch(
+    `*[_type == "category" && slug.current == $slug] {
+      name,
+      description
+    }`,
+    { slug },
+    { cache: "no-store" }
+  )
 }
