@@ -27,6 +27,8 @@ export default async function HomePage() {
 
   // ✅ NORMALIZE PRODUCTS (CRITICAL FIX)
   const normalize = (product: any) => ({
+    id: product.slug || product._id,
+    
     id: product._id, // 🔥 THIS FIXES /products/undefined
     name: product.name,
     price: product.price,
