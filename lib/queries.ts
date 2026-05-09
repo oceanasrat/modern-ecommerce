@@ -5,17 +5,11 @@ export async function getProducts() {
   return await client.fetch(
     `*[_type == "product"]{
       _id,
-
-      // ✅ IMPORTANT
       "slug": slug.current,
-
       name,
       "price": coalesce(price, 0),
       description,
-
-      // ✅ First image only
-      "image": images[0].asset->url,
-
+      "image": images.asset->url,
       category,
       rating,
       isBestSeller
@@ -26,30 +20,22 @@ export async function getProducts() {
 }
 
 /** ✅ GET SINGLE PRODUCT **/
-export async function getProduct(id: string) {
+export async function getProduct(identifier: string) {
+  // Use identifier to check both _id and slug.current
   const product = await client.fetch(
-    `*[_type == "product" && (
-      _id == $id ||
-      slug.current == $id
-    )][0]{
+    `*[_type == "product" && (_id == $identifier || slug.current == $identifier)]{
       _id,
-
-      // ✅ IMPORTANT
       "slug": slug.current,
-
       name,
       "price": coalesce(price, 0),
       description,
-
-      // ✅ Gallery images
       "images": images[].asset->url,
-
       category,
       rating,
       stock,
       isBestSeller
     }`,
-    { id },
+    { identifier },
     { cache: "no-store" }
   )
 
@@ -57,33 +43,21 @@ export async function getProduct(id: string) {
 
   return {
     ...product,
-
     images: Array.isArray(product.images)
-      ? product.images.filter(
-          (img: any) =>
-            typeof img === "string"
-        )
+      ? product.images.filter((img: any) => typeof img === "string")
       : [],
   }
 }
 
 /** ✅ GET PRODUCTS BY CATEGORY **/
-export async function getProductsByCategory(
-  categoryName: string
-) {
+export async function getProductsByCategory(categoryName: string) {
   return await client.fetch(
     `*[_type == "product" && category == $categoryName]{
       _id,
-
-      // ✅ IMPORTANT
       "slug": slug.current,
-
       name,
-
-      "image": images[0].asset->url,
-
+      "image": images.asset->url,
       "price": coalesce(price, 0),
-
       category,
       isBestSeller,
       rating
@@ -96,8 +70,7 @@ export async function getProductsByCategory(
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
   const name = slug
-    ? slug.charAt(0).toUpperCase() +
-      slug.slice(1)
+    ? slug.charAt(0).toUpperCase() + slug.slice(1)
     : "Collection"
 
   return {
