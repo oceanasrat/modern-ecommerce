@@ -25,20 +25,22 @@ export default async function HomePage() {
   const kitchen = products.filter((p: any) => p.category === "kitchen")
   const health = products.filter((p: any) => p.category === "health")
 
-  // ✅ NORMALIZE PRODUCTS (CRITICAL FIX)
   const normalize = (product: any) => ({
-    id: product.slug || product._id,
-    
-    id: product._id, // 🔥 THIS FIXES /products/undefined
-    name: product.name,
-    price: product.price,
-    image: product.image,
-    category: product.category,
-    rating: product.rating,
-    reviews: product.reviews,
-    isBestSeller: product.isBestSeller,
-    stock: product.stock,
-  })
+  // ✅ Use slug for routing
+  id: product.slug || product._id,
+
+  // ✅ Keep original _id separately
+  _id: product._id,
+
+  name: product.name,
+  price: product.price,
+  image: product.image,
+  category: product.category,
+  rating: product.rating,
+  reviews: product.reviews,
+  isBestSeller: product.isBestSeller,
+  stock: product.stock,
+})
 
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
