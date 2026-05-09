@@ -1,18 +1,27 @@
 import { createClient } from "@sanity/client"
+import imageUrlBuilder from "@sanity/image-url"
 
-// ✅ Debugging: This will help you see if your env variables are missing in the logs
+// ✅ Environment variable checks
 if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-  console.warn("⚠️ Sanity Project ID is missing. Check your environment variables!")
+  console.warn("⚠️ Missing NEXT_PUBLIC_SANITY_PROJECT_ID")
 }
 
+if (!process.env.NEXT_PUBLIC_SANITY_DATASET) {
+  console.warn("⚠️ Missing NEXT_PUBLIC_SANITY_DATASET")
+}
+
+// ✅ Sanity client
 export const client = createClient({
-  // Use the exact names from your .env.local and Vercel settings
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "your_actual_project_id_here",
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
-  
-  // Use a modern API version
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   apiVersion: "2024-01-01",
-  
-  // 💡 Set useCdn to false while debugging to ensure you see the latest Sanity data immediately
   useCdn: false,
 })
+
+// ✅ Image builder
+const builder = imageUrlBuilder(client)
+
+// ✅ Helper function for images
+export function urlFor(source: any) {
+  return builder.image(source)
+}
