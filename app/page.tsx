@@ -8,181 +8,167 @@ import Link from "next/link"
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const products = await getProducts()
+  // ✅ 1. Safe Data Fetching
+  let products = [];
+  let banners = [];
 
-  const banners = await client.fetch(
-    `*[_type == "promoBanner"]{
-      _id,
-      title,
-      subtitle,
-      "image": image.asset->url
-    }`,
-    {},
-    { cache: "no-store" }
-  )
+  try {
+    const [fetchedProducts, fetchedBanners] = await Promise.all([
+      getProducts(),
+      client.fetch(
+        `*[_type == "promoBanner"]{
+          _id,
+          title,
+          subtitle,
+          "image": image.asset->url
+        }`,
+        {},
+        { cache: "no-store" }
+      )
+    ]);
+    products = fetchedProducts || [];
+    banners = fetchedBanners || [];
+  } catch (error) {
+    console.error("Home Page Fetch Error:", error);
+  }
 
-  // ✅ SAFE NORMALIZER
+  // ✅ 2. FIX: Get the first banner from the array
+  const activeBanner = banners.length > 0 ? banners : null;
+
+  // ✅ 3. SAFE NORMALIZER (Prevents $NaN and Broken Links)
   const normalize = (product: any) => {
-    // 🚨 FIX: Safely extract the slug string if Sanity returns a slug object
-    const actualSlug = typeof product?.slug === 'object' 
-      ? product.slug.current 
-      : product?.slug
+    if (!product) return null;
 
-    const safeId = actualSlug || product?._id || "missing-id"
+    // Use the slug string, fallback to ID
+    const safeId = product.slug || product._id || "missing-id";
 
     return {
       id: safeId,
-      _id: product?._id || safeId,
-      slug: actualSlug || safeId,
-      name: product?.name || "Unnamed Product",
-      price: typeof product?.price === "number" ? product.price : 0,
-      image: typeof product?.image === "string" ? product.image : "/placeholder.png",
-      category: product?.category || "Premium",
-      rating: typeof product?.rating === "number" ? product.rating : 4.8,
-      reviews: typeof product?.reviews === "number" ? product.reviews : 0,
-      isBestSeller: Boolean(product?.isBestSeller),
-      stock: typeof product?.stock === "number" ? product.stock : 0,
+      _id: product._id || safeId,
+      slug: safeId,
+      name: product.name || "Premium Product",
+      price: Number(product.price) || 0, // Force number to stop $NaN
+      image: product.image || "/placeholder.png",
+      category: product.category || "General",
+      rating: Number(product.rating) || 4.8,
+      isBestSeller: Boolean(product.isBestSeller),
     }
   }
 
-  // ✅ NORMALIZED PRODUCTS
-  const normalizedProducts = products ? products.map(normalize) : []
-
-  // ✅ FILTER NORMALIZED PRODUCTS
-  const bestSellers = normalizedProducts.filter((p: any) => p.isBestSeller)
-  const pet = normalizedProducts.filter((p: any) => p.category === "pet")
-  const beauty = normalizedProducts.filter((p: any) => p.category === "beauty")
-  const kitchen = normalizedProducts.filter((p: any) => p.category === "kitchen")
-  const health = normalizedProducts.filter((p: any) => p.category === "health")
+  // ✅ 4. PROCESS DATA
+  const normalizedProducts = products.map(normalize).filter(Boolean);
+  
+  const bestSellers = normalizedProducts.filter((p: any) => p.isBestSeller);
+  const categories = ["pet", "beauty", "kitchen", "health"];
+  
+  // Group products by category for easy rendering
+  const productGroups = categories.reduce((acc: any, cat) => {
+    acc[cat] = normalizedProducts.filter((p: any) => p.category === cat);
+    return acc;
+  }, {});
 
   return (
     <main className="container mx-auto px-6 py-12 space-y-16">
 
-      {/* HERO BANNER */}
-      {banners?.length > 0 && (
-        <section className="relative w-full h-[450px] md:h-[600px] rounded-2xl overflow-hidden">
+      {/* ✅ HERO BANNER FIX: Corrected array access */}
+      {activeBanner && (
+        <section className="relative w-full h-[450px] md:h-[600px] rounded-3xl overflow-hidden shadow-2xl">
           <img
-            src={banners.image || "/placeholder.png"}
-            alt={banners.title || "Banner"}
+            src={activeBanner.image || "/placeholder.png"}
+            alt={activeBanner.title || "Banner"}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-white text-center px-6">
-            <h2 className="text-4xl md:text-6xl font-bold mb-4">
-              {banners.title}
+            <h2 className="text-4xl md:text-7xl font-black mb-4 tracking-tighter uppercase">
+              {activeBanner.title}
             </h2>
-            <p className="text-lg md:text-xl max-w-xl mb-6">
-              {banners.subtitle}
+            <p className="text-lg md:text-xl max-w-xl mb-8 font-light">
+              {activeBanner.subtitle}
             </p>
             <a
               href="#products"
-              className="bg-white text-black px-6 py-3 rounded-lg font-semibold transition-transform hover:scale-105"
+              className="bg-white text-black px-10 py-4 rounded-full font-bold transition-all hover:scale-105 active:scale-95"
             >
-              Shop Now
+              Shop the Collection
             </a>
           </div>
         </section>
       )}
 
-      {/* TITLE */}
-      <section>
-        <h1 className="text-4xl md:text-6xl font-bold text-center tracking-tight">
-          Ocean Global Ventures
+      {/* BRAND TITLE */}
+      <section className="pt-10">
+        <h1 className="text-5xl md:text-8xl font-black text-center tracking-tighter uppercase">
+          Ocean Global
         </h1>
       </section>
 
       {/* CATEGORY TILES */}
-      <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Link href="/category/pet" className="rounded-xl border p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 bg-card">
-          <span className="text-3xl">🐶</span>
-          <p className="mt-2 font-semibold">Pet</p>
-        </Link>
-        <Link href="/category/beauty" className="rounded-xl border p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 bg-card">
-          <span className="text-3xl">💄</span>
-          <p className="mt-2 font-semibold">Beauty</p>
-        </Link>
-        <Link href="/category/kitchen" className="rounded-xl border p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 bg-card">
-          <span className="text-3xl">🍳</span>
-          <p className="mt-2 font-semibold">Kitchen</p>
-        </Link>
-        <Link href="/category/health" className="rounded-xl border p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 bg-card">
-          <span className="text-3xl">💊</span>
-          <p className="mt-2 font-semibold">Health</p>
-        </Link>
-        <Link href="/category/electronics" className="rounded-xl border p-6 text-center hover:shadow-lg transition-all hover:-translate-y-1 bg-card">
-          <span className="text-3xl">💻</span>
-          <p className="mt-2 font-semibold">Electronics</p>
-        </Link>
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { slug: "pet", icon: "🐶", label: "Pet" },
+          { slug: "beauty", icon: "💄", label: "Beauty" },
+          { slug: "kitchen", icon: "🍳", label: "Kitchen" },
+          { slug: "health", icon: "💊", label: "Health" },
+        ].map((cat) => (
+          <Link 
+            key={cat.slug} 
+            href={`/category/${cat.slug}`} 
+            className="group rounded-2xl border p-8 text-center hover:shadow-xl transition-all hover:-translate-y-1 bg-card dark:border-zinc-800"
+          >
+            <span className="text-4xl block transition-transform group-hover:scale-110">{cat.icon}</span>
+            <p className="mt-4 font-bold uppercase tracking-widest text-xs">{cat.label}</p>
+          </Link>
+        ))}
       </section>
 
-      {/* SEARCH */}
-      <SearchBar products={normalizedProducts} />
+      {/* SEARCH BAR */}
+      <div className="max-w-2xl mx-auto">
+        <SearchBar products={normalizedProducts} />
+      </div>
 
-      {/* BEST SELLERS */}
+      {/* BEST SELLERS SECTION */}
       {bestSellers.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold mb-6">🔥 Best Sellers</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {bestSellers.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-black uppercase tracking-tight">🔥 Best Sellers</h2>
+            <div className="h-px flex-1 bg-zinc-100 dark:bg-zinc-800 ml-6" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {bestSellers.slice(0, 3).map((product: any) => (
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         </section>
       )}
 
-      {/* PET */}
-      {pet.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">🐶 Pet Products</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {pet.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* DYNAMIC CATEGORY SECTIONS */}
+      {categories.map((cat) => {
+        const groupProducts = productGroups[cat];
+        if (groupProducts.length === 0) return null;
 
-      {/* BEAUTY */}
-      {beauty.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">💄 Beauty</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {beauty.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
+        return (
+          <section key={cat}>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-black uppercase tracking-tight">
+                {cat === 'pet' ? '🐶' : cat === 'beauty' ? '💄' : cat === 'kitchen' ? '🍳' : '💊'} {cat}
+              </h2>
+              <Link href={`/category/${cat}`} className="text-xs font-bold uppercase underline underline-offset-4">View All</Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {groupProducts.slice(0, 3).map((product: any) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
-      {/* KITCHEN */}
-      {kitchen.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">🍳 Kitchen</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {kitchen.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* HEALTH */}
-      {health.length > 0 && (
-        <section>
-          <h2 className="text-2xl font-bold mb-6">💊 Health & Wellness</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {health.map((product: any) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ALL PRODUCTS */}
-      <section id="products">
-        <h2 className="text-2xl font-bold mb-6">All Products</h2>
-        <div className="grid md:grid-cols-3 gap-6">
+      {/* ALL PRODUCTS GRID */}
+      <section id="products" className="pt-20 border-t">
+        <h2 className="text-2xl font-black mb-10 uppercase tracking-widest text-center">The Full Inventory</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {normalizedProducts.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
       </section>
