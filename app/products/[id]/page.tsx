@@ -22,16 +22,16 @@ export default async function ProductPage({
   params,
 }: Props) {
 
-  // ✅ id now represents the slug from URL
-  const slug = params.id
+  // ✅ USE REAL PRODUCT ID
+  const id = params.id
 
   // ✅ Prevent invalid routes
-  if (!slug || slug === "undefined") {
+  if (!id || id === "undefined") {
     return notFound()
   }
 
-  // ✅ Fetch by slug
-  const product = await getProduct(slug)
+  // ✅ Fetch by _id
+  const product = await getProduct(id)
 
   if (!product) {
     return notFound()
