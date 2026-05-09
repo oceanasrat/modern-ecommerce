@@ -6,7 +6,7 @@ export async function getProducts() {
     `*[_type == "product"]{
       _id,
       name,
-      price,
+      "price": coalesce(price, 0),
       description,
       "image": images.asset->url,
       category,
@@ -20,12 +20,12 @@ export async function getProducts() {
 
 /** ✅ GET SINGLE PRODUCT **/
 export async function getProduct(id: string) {
-  // Added so it returns a single object, not an array
+  // 🚨 FIXED: Added to the query string so it returns ONE object
   const product = await client.fetch(
     `*[_type == "product" && _id == $id]{
       _id,
       name,
-      price,
+      "price": coalesce(price, 0),
       description,
       "images": images[].asset->url,
       category,
@@ -40,7 +40,7 @@ export async function getProduct(id: string) {
 
   return {
     ...product,
-    // Ensures the gallery always has a valid array of image URLs
+    // Ensures images is always a clean array of strings
     images: Array.isArray(product.images) 
       ? product.images.filter((img: any) => typeof img === 'string') 
       : []
@@ -55,7 +55,7 @@ export async function getProductsByCategory(categoryName: string) {
       _id,
       name,
       "image": images.asset->url,
-      price,
+      "price": coalesce(price, 0),
       category,
       isBestSeller,
       rating
@@ -67,10 +67,11 @@ export async function getProductsByCategory(categoryName: string) {
 
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
-  // Since categories are just strings in your product schema, 
-  // we generate the title from the URL slug
+  // Logic to capitalize the slug for the UI header
+  const name = slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : "Collection"
+  
   return {
-    name: slug.charAt(0).toUpperCase() + slug.slice(1),
-    description: `Explore our premium collection of ${slug} products.`
+    name: name,
+    description: `Explore our premium collection of ${name} products.`
   }
 }
