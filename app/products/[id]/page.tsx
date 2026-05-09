@@ -4,25 +4,30 @@ import { getProduct } from "@/lib/queries"
 import ProductGallery from "@/components/products/ProductGallery"
 import { ChevronLeft, Truck, Shield, RotateCcw } from "lucide-react"
 
+// ✅ Force Next.js to fetch fresh data every time to stop the $0.00/broken image bug
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{ id: string }>
 }
 
 export default async function ProductPage({ params }: Props) {
-  // ✅ Next.js 15 requirement: Await the params
-  const { id } = await params
+  // 1. Await params properly
+  const resolvedParams = await params
+  const id = resolvedParams.id
 
-  // Safety check for undefined IDs
   if (!id || id === "undefined") return notFound()
   
+  // 2. Fetch product
   const product = await getProduct(id)
   
-  // If product not found in Sanity
   if (!product) return notFound()
 
-  // ✅ $NaN Fix: Safely format price
-  const rawPrice = Number(product.price)
-  const formattedPrice = isNaN(rawPrice) ? "0.00" : rawPrice.toFixed(2)
+  // 3. Robust Price Handling
+  // We check product.price directly. If it's missing, we don't just show 0.00
+  const displayPrice = product.price 
+    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)
+    : "$0.00"
 
   return (
     <main className="min-h-screen bg-background pb-20">
@@ -40,7 +45,8 @@ export default async function ProductPage({ params }: Props) {
           
           {/* LEFT: GALLERY */}
           <section className="lg:sticky lg:top-24 lg:col-span-7">
-            <ProductGallery images={product.images} />
+            {/* ✅ We pass product.images which is now correctly mapped in queries.ts */}
+            <ProductGallery images={product.images || []} />
           </section>
 
           {/* RIGHT: CONTENT */}
@@ -51,15 +57,15 @@ export default async function ProductPage({ params }: Props) {
                 {product.category || "Exclusive"}
               </span>
               <h1 className="text-5xl font-black tracking-tighter text-foreground lg:text-6xl">
-                {product.name}
+                {product.name || "Loading Product..."}
               </h1>
               <p className="text-3xl font-light text-foreground/90">
-                ${formattedPrice}
+                {displayPrice}
               </p>
             </div>
 
             <p className="text-lg leading-relaxed text-muted-foreground/90">
-              {product.description || "Expertly crafted using the finest materials to ensure lasting quality and timeless style."}
+              {product.description || "No description available for this premium item."}
             </p>
 
             {/* TRUST BADGES */}
@@ -79,7 +85,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
 
             <button className="flex w-full items-center justify-center rounded-full bg-foreground px-8 py-6 text-base font-bold text-background transition-transform hover:scale-[1.02] active:scale-[0.98]">
-              Add to Cart — ${formattedPrice}
+              Add to Cart — {displayPrice}
             </button>
 
           </section>
