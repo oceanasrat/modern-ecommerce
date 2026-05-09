@@ -6,10 +6,10 @@ export async function getProducts() {
     `*[_type == "product"]{
       _id,
       name,
-      "price": coalesce(price, 0),
+      price,
       description,
-      "image": coalesce(image.asset->url, images.asset->url, ""),
-      "category": category->name,
+      "image": images.asset->url,
+      category,
       rating,
       isBestSeller
     }`,
@@ -20,16 +20,15 @@ export async function getProducts() {
 
 /** ✅ GET SINGLE PRODUCT **/
 export async function getProduct(id: string) {
-  // 🚨 CRITICAL: Added back so it returns one product, not an array!
+  // Added so it returns a single object, not an array
   const product = await client.fetch(
     `*[_type == "product" && _id == $id]{
       _id,
       name,
-      "price": coalesce(price, 0),
+      price,
       description,
-      "image": image.asset->url,
       "images": images[].asset->url,
-      "category": category->name,
+      category,
       rating,
       stock
     }`,
@@ -39,51 +38,39 @@ export async function getProduct(id: string) {
 
   if (!product) return null
 
-  // Combines single image and array into one clean list for the gallery
-  const allImages: string[] = []
-  
-  if (product.image) {
-    allImages.push(product.image)
-  }
-  
-  if (product.images && Array.isArray(product.images)) {
-    // 🚨 CRITICAL: Added (img: any) to fix the Vercel build error!
-    const validImages = product.images.filter((img: any) => typeof img === 'string')
-    allImages.push(...validImages)
-  }
-
   return {
     ...product,
-    images: allImages.length > 0 ? allImages : ["/placeholder.png"]
+    // Ensures the gallery always has a valid array of image URLs
+    images: Array.isArray(product.images) 
+      ? product.images.filter((img: any) => typeof img === 'string') 
+      : []
   }
 }
 
 /** ✅ GET PRODUCTS BY CATEGORY **/
-export async function getProductsByCategory(slug: string) {
+export async function getProductsByCategory(categoryName: string) {
+  // Matches the string value from your schema dropdown
   return await client.fetch(
-    `*[_type == "product" && category->slug.current == $slug] {
+    `*[_type == "product" && category == $categoryName] {
       _id,
       name,
-      "image": coalesce(image.asset->url, images.asset->url, ""),
-      "price": coalesce(price, 0),
-      "category": category->name,
+      "image": images.asset->url,
+      price,
+      category,
       isBestSeller,
       rating
     }`,
-    { slug },
+    { categoryName },
     { cache: "no-store" }
   )
 }
 
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
-  // 🚨 CRITICAL: Added back so it returns one category, not an array!
-  return await client.fetch(
-    `*[_type == "category" && slug.current == $slug] {
-      name,
-      description
-    }`,
-    { slug },
-    { cache: "no-store" }
-  )
+  // Since categories are just strings in your product schema, 
+  // we generate the title from the URL slug
+  return {
+    name: slug.charAt(0).toUpperCase() + slug.slice(1),
+    description: `Explore our premium collection of ${slug} products.`
+  }
 }
