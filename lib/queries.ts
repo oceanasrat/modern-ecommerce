@@ -2,13 +2,16 @@ import { client } from "./sanity"
 
 /** ✅ GET ALL PRODUCTS **/
 export async function getProducts() {
-  return client.fetch(
+  return await client.fetch(
     `*[_type == "product"]{
       _id,
       name,
       "price": coalesce(price, 0),
       description,
-      "image": images.asset->url,
+
+      // ✅ First image only
+      "image": images[0].asset->url,
+
       category,
       rating,
       isBestSeller
@@ -20,14 +23,17 @@ export async function getProducts() {
 
 /** ✅ GET SINGLE PRODUCT **/
 export async function getProduct(id: string) {
-  // 🚨 FIXED: Added to the query string so it returns ONE object
+  // ✅ [0] returns a SINGLE object instead of array
   const product = await client.fetch(
-    `*[_type == "product" && _id == $id]{
+    `*[_type == "product" && _id == $id][0]{
       _id,
       name,
       "price": coalesce(price, 0),
       description,
+
+      // ✅ Get all image URLs
       "images": images[].asset->url,
+
       category,
       rating,
       stock
@@ -40,21 +46,24 @@ export async function getProduct(id: string) {
 
   return {
     ...product,
-    // Ensures images is always a clean array of strings
-    images: Array.isArray(product.images) 
-      ? product.images.filter((img: any) => typeof img === 'string') 
-      : []
+
+    // ✅ Safety cleanup
+    images: Array.isArray(product.images)
+      ? product.images.filter((img: any) => typeof img === "string")
+      : [],
   }
 }
 
 /** ✅ GET PRODUCTS BY CATEGORY **/
 export async function getProductsByCategory(categoryName: string) {
-  // Matches the string value from your schema dropdown
   return await client.fetch(
-    `*[_type == "product" && category == $categoryName] {
+    `*[_type == "product" && category == $categoryName]{
       _id,
       name,
-      "image": images.asset->url,
+
+      // ✅ First image only
+      "image": images[0].asset->url,
+
       "price": coalesce(price, 0),
       category,
       isBestSeller,
@@ -67,11 +76,12 @@ export async function getProductsByCategory(categoryName: string) {
 
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
-  // Logic to capitalize the slug for the UI header
-  const name = slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : "Collection"
-  
+  const name = slug
+    ? slug.charAt(0).toUpperCase() + slug.slice(1)
+    : "Collection"
+
   return {
-    name: name,
-    description: `Explore our premium collection of ${name} products.`
+    name,
+    description: `Explore our premium collection of ${name} products.`,
   }
 }
