@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -22,12 +21,11 @@ export default function ProductGallery({ images }: { images: string[] }) {
           transition={{ duration: 0.4 }}
           className="absolute inset-0"
         >
-          <Image
+          {/* Reverted to standard img tag */}
+          <img
             src={safeImages[selected]}
-            alt="Product image"
-            fill
-            className="object-cover"
-            priority
+            alt="Product view"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         </motion.div>
       </AnimatePresence>
@@ -46,7 +44,12 @@ export default function ProductGallery({ images }: { images: string[] }) {
                   : "border-transparent opacity-60 hover:opacity-100 hover:scale-105"
               )}
             >
-              <Image src={img} alt={`Thumb ${idx}`} fill className="object-cover" />
+               {/* Reverted to standard img tag */}
+              <img 
+                src={img} 
+                alt={`Thumb ${idx}`} 
+                className="absolute inset-0 h-full w-full object-cover" 
+              />
             </button>
           ))}
         </div>
