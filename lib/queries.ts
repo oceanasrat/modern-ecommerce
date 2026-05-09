@@ -20,6 +20,7 @@ export async function getProducts() {
 
 /** ✅ GET SINGLE PRODUCT **/
 export async function getProduct(id: string) {
+  // 🚨 CRITICAL: Added back so it returns one product, not an array!
   const product = await client.fetch(
     `*[_type == "product" && _id == $id]{
       _id,
@@ -39,10 +40,16 @@ export async function getProduct(id: string) {
   if (!product) return null
 
   // Combines single image and array into one clean list for the gallery
-  const allImages = []
-  if (product.image) allImages.push(product.image)
+  const allImages: string[] = []
+  
+  if (product.image) {
+    allImages.push(product.image)
+  }
+  
   if (product.images && Array.isArray(product.images)) {
-    allImages.push(...product.images.filter(img => typeof img === 'string'))
+    // 🚨 CRITICAL: Added (img: any) to fix the Vercel build error!
+    const validImages = product.images.filter((img: any) => typeof img === 'string')
+    allImages.push(...validImages)
   }
 
   return {
@@ -70,6 +77,7 @@ export async function getProductsByCategory(slug: string) {
 
 /** ✅ GET CATEGORY DETAILS **/
 export async function getCategory(slug: string) {
+  // 🚨 CRITICAL: Added back so it returns one category, not an array!
   return await client.fetch(
     `*[_type == "category" && slug.current == $slug] {
       name,
