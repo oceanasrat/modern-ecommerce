@@ -1,6 +1,6 @@
 import { client } from "./sanity"
 
-/** ✅ GET ALL PRODUCTS (Fail-safe for images) **/
+/** ✅ GET ALL PRODUCTS **/
 export async function getProducts() {
   return client.fetch(
     `*[_type == "product"]{
@@ -10,7 +10,6 @@ export async function getProducts() {
       description,
       "image": coalesce(image.asset->url, images.asset->url, ""),
       "category": category->name,
-      "categorySlug": category->slug.current,
       rating,
       isBestSeller
     }`,
@@ -39,10 +38,12 @@ export async function getProduct(id: string) {
 
   if (!product) return null
 
-  // Ensure images is always an array, even if empty
+  // Combines single image and array into one clean list for the gallery
   const allImages = []
   if (product.image) allImages.push(product.image)
-  if (product.images) allImages.push(...product.images)
+  if (product.images && Array.isArray(product.images)) {
+    allImages.push(...product.images.filter(img => typeof img === 'string'))
+  }
 
   return {
     ...product,
