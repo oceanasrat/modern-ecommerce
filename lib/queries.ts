@@ -18,7 +18,7 @@ export async function getProducts() {
       { cache: "no-store" }
     )
   } catch (error) {
-    console.error("Sanity Fetch Error:", error)
+    console.error("Sanity Fetch Error (getProducts):", error)
     return []
   }
 }
@@ -50,6 +50,7 @@ export async function getProduct(identifier: string) {
       images: Array.isArray(product.images) ? product.images : []
     }
   } catch (error) {
+    console.error("Sanity Fetch Error (getProduct):", error)
     return null
   }
 }
@@ -72,6 +73,25 @@ export async function getProductsByCategory(categoryName: string) {
       { cache: "no-store" }
     )
   } catch (error) {
+    console.error("Sanity Fetch Error (getProductsByCategory):", error)
     return []
+  }
+}
+
+/** ✅ GET CATEGORY DETAILS (Required for /category/[slug]) **/
+export async function getCategory(slug: string) {
+  try {
+    // If you have a specific Category type in Sanity, fetch it here.
+    // Otherwise, this generates a clean title and description from the slug.
+    const name = slug
+      ? slug.charAt(0).toUpperCase() + slug.slice(1)
+      : "Collection"
+
+    return {
+      name,
+      description: `Explore our premium collection of ${name} products.`,
+    }
+  } catch (error) {
+    return { name: "Collection", description: "" }
   }
 }
