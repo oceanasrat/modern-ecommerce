@@ -8,11 +8,12 @@ import { ShoppingBag, Star } from "lucide-react"
 export default function ProductCard({ product }: { product: any }) {
   const addItem = useCartStore((state) => state.addItem)
 
-  // ✅ Safe product ID
-  const productId = product?._id || product?.id || ""
+  // ✅ USE SLUG INSTEAD OF _id
+  const productSlug = product?.slug || ""
 
   // ✅ Safe price handling
   const rawPrice = Number(product?.price)
+
   const displayPrice = isNaN(rawPrice)
     ? "0.00"
     : rawPrice.toFixed(2)
@@ -35,7 +36,7 @@ export default function ProductCard({ product }: { product: any }) {
       {/* IMAGE */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-zinc-100 dark:bg-zinc-900">
         <Link
-          href={`/products/${productId}`}
+          href={`/products/${productSlug}`}
           className="block h-full w-full"
         >
           <img
@@ -63,7 +64,7 @@ export default function ProductCard({ product }: { product: any }) {
               e.preventDefault()
 
               addItem({
-                id: productId,
+                id: productSlug,
                 name: product?.name || "Product",
                 image: imageSrc,
                 quantity: 1,
@@ -94,7 +95,7 @@ export default function ProductCard({ product }: { product: any }) {
           </div>
         </div>
 
-        <Link href={`/products/${productId}`}>
+        <Link href={`/products/${productSlug}`}>
           <h3 className="line-clamp-1 text-base font-medium tracking-tight text-foreground transition-colors hover:text-muted-foreground">
             {product?.name || "Unnamed Product"}
           </h3>
